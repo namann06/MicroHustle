@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import TaskList from './TaskList';
 import PostTask from './PostTask';
 import Register from './Register';
+import Banner from './Banner';
 
 function App() {
   const [page, setPage] = useState('home');
   const [currentUser, setCurrentUser] = useState(null);
+  const [search, setSearch] = useState("");
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -36,7 +38,10 @@ function App() {
         )}
       </nav>
       <div className="p-4 max-w-2xl mx-auto">
-        {page === 'home' && <TaskList currentUser={currentUser} />}
+        {page === 'home' && <>
+          <Banner onSearch={setSearch} />
+          <TaskList currentUser={currentUser} search={search} />
+        </>}
         {page === 'post' && currentUser && currentUser.role === 'POSTER' && <PostTask currentUser={currentUser} />}
         {page === 'register' && !currentUser && <Register setCurrentUser={setCurrentUser} />}
         {page === 'register' && currentUser && <div className="text-green-700">Already logged in.</div>}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-function TaskList({ currentUser }) {
+function TaskList({ currentUser, search }) {
   const [tasks, setTasks] = useState([]);
   const [accepting, setAccepting] = useState(null);
 
@@ -26,7 +26,17 @@ function TaskList({ currentUser }) {
     <div>
       <h2 className="text-xl font-bold mb-4">Tasks</h2>
       <ul className="space-y-4">
-        {tasks.map(task => {
+        {tasks
+          .filter(task => {
+            if (!search) return true;
+            const s = search.toLowerCase();
+            return (
+              (task.title && task.title.toLowerCase().includes(s)) ||
+              (task.description && task.description.toLowerCase().includes(s)) ||
+              (task.tags && task.tags.toLowerCase().includes(s))
+            );
+          })
+          .map(task => {
           const acceptedIds = (task.acceptedHustlers || []).map(u => u.id);
           const hasAccepted = currentUser && acceptedIds.includes(currentUser.id);
           return (
