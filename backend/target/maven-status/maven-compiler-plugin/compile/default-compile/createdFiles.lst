@@ -1,0 +1,10 @@
+com\microhustle\controller\UserController.class
+com\microhustle\controller\TaskController.class
+com\microhustle\repository\UserRepository.class
+com\microhustle\model\User$Role.class
+com\microhustle\model\Offer.class
+com\microhustle\repository\OfferRepository.class
+com\microhustle\model\Task.class
+com\microhustle\repository\TaskRepository.class
+com\microhustle\MicroHustleApplication.class
+com\microhustle\model\User.class
