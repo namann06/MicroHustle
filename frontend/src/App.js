@@ -37,7 +37,7 @@ function App() {
           </span>
         )}
       </nav>
-      <div className="p-4 max-w-2xl mx-auto">
+      <div className="p-0 w-full">
         {page === 'home' && <>
           <Banner onSearch={setSearch} />
           <TaskList currentUser={currentUser} search={search} />
