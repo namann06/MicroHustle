@@ -35,6 +35,8 @@ public class TaskController {
             return ResponseEntity.badRequest().body("Only hustlers can accept tasks");
         }
         task.getAcceptedHustlers().add(hustler);
+        hustler.getAcceptedTasks().add(task);
+        userRepository.save(hustler);
         taskRepository.save(task);
         return ResponseEntity.ok(task);
     }
@@ -42,5 +44,17 @@ public class TaskController {
     @GetMapping
     public List<Task> getTasks() {
         return taskRepository.findAll();
+    }
+
+    // Get tasks posted by a specific poster
+    @GetMapping("/poster/{posterId}")
+    public List<Task> getTasksByPoster(@PathVariable Long posterId) {
+        return taskRepository.findByPosterId(posterId);
+    }
+
+    // Get tasks accepted by a specific hustler
+    @GetMapping("/hustler/{hustlerId}")
+    public List<Task> getTasksByAcceptedHustler(@PathVariable Long hustlerId) {
+        return taskRepository.findByAcceptedHustlers_Id(hustlerId);
     }
 }

@@ -18,7 +18,7 @@ public class Task {
     private String status;
 
     @ManyToOne
-    @com.fasterxml.jackson.annotation.JsonBackReference
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"postedTasks", "acceptedTasks", "password"})
     private User poster;
 
     @ManyToMany
@@ -27,7 +27,7 @@ public class Task {
         joinColumns = @JoinColumn(name = "task_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"password"})
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"postedTasks", "acceptedTasks", "password"})
     private java.util.Set<User> acceptedHustlers = new java.util.HashSet<>();
 
     public Task() {}
