@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function PostTask() {
+function PostTask({ currentUser }) {
   const [form, setForm] = useState({ title: '', description: '', tags: '', budget: '', deadline: '' });
   const [success, setSuccess] = useState(false);
 
@@ -14,7 +14,7 @@ function PostTask() {
     await fetch('http://localhost:8080/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify({ ...form, poster: { id: currentUser.id } })
     });
     setSuccess(true);
     setForm({ title: '', description: '', tags: '', budget: '', deadline: '' });

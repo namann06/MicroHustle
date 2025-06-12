@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 function TaskList({ currentUser, search }) {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [accepting, setAccepting] = useState(null);
 
@@ -41,9 +44,11 @@ function TaskList({ currentUser, search }) {
           const hasAccepted = currentUser && acceptedIds.includes(currentUser.id);
           return (
             <li key={task.id} className="bg-white p-4 rounded shadow">
-              <div className="font-bold">{task.title}</div>
-              <div>{task.description}</div>
-              <div className="text-sm text-gray-500">Budget: ₹{task.budget} | Tags: {task.tags}</div>
+              <div className="cursor-pointer" onClick={() => navigate(`/tasks/${task.id}`)}>
+                <div className="font-semibold text-lg text-yellow-300">{task.title}</div>
+                <div className="text-gray-400 text-sm">Budget: {task.budget}</div>
+                <div className="text-blue-300 text-xs">Tags: {task.tags}</div>
+              </div>
               {currentUser && currentUser.role === 'HUSTLER' && !hasAccepted && (
                 <button className="mt-2 bg-green-600 text-white px-3 py-1 rounded" onClick={() => handleAccept(task.id)} disabled={accepting === task.id}>
                   {accepting === task.id ? 'Accepting...' : 'Accept'}
@@ -51,11 +56,6 @@ function TaskList({ currentUser, search }) {
               )}
               {currentUser && currentUser.role === 'HUSTLER' && hasAccepted && (
                 <div className="mt-2 text-green-700">You have accepted this task.</div>
-              )}
-              {currentUser && currentUser.role === 'POSTER' && task.acceptedHustlers && task.acceptedHustlers.length > 0 && (
-                <div className="mt-2 text-blue-700">
-                  Accepted by: {task.acceptedHustlers.map(u => u.username).join(', ')}
-                </div>
               )}
             </li>
           );
