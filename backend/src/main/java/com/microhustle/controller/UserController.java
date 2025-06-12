@@ -28,4 +28,13 @@ public class UserController {
     public User register(@RequestBody User user) {
         return userRepository.save(user);
     }
+
+    @PostMapping("/login")
+    public org.springframework.http.ResponseEntity<?> login(@RequestBody com.microhustle.model.User loginRequest) {
+        com.microhustle.model.User user = userRepository.findByUsername(loginRequest.getUsername());
+        if (user == null || !user.getPassword().equals(loginRequest.getPassword())) {
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+        return org.springframework.http.ResponseEntity.ok(user);
+    }
 }
