@@ -46,6 +46,14 @@ public class TaskController {
         return taskRepository.findAll();
     }
 
+    // Get a single task by id
+    @GetMapping("/{taskId}")
+    public ResponseEntity<Task> getTaskById(@PathVariable Long taskId) {
+        return taskRepository.findById(taskId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     // Get tasks posted by a specific poster
     @GetMapping("/poster/{posterId}")
     public List<Task> getTasksByPoster(@PathVariable Long posterId) {

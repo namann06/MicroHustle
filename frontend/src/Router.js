@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import App from './App';
 import TaskDetails from './TaskDetails';
+import { useLocation } from 'react-router-dom';
 
 function MainRouter() {
   return (
@@ -17,7 +18,9 @@ function MainRouter() {
 function TaskDetailsWrapper() {
   const navigate = useNavigate();
   const { taskId } = useParams();
-  return <TaskDetails taskId={taskId} onBack={() => navigate('/')} />;
+  const location = useLocation();
+  const currentUser = location.state && location.state.currentUser ? location.state.currentUser : null;
+  return <TaskDetails taskId={taskId} onBack={() => navigate('/')} currentUser={currentUser} />;
 }
 
 export default MainRouter;

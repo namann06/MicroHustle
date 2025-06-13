@@ -44,7 +44,7 @@ function TaskList({ currentUser, search }) {
           const hasAccepted = currentUser && acceptedIds.includes(currentUser.id);
           return (
             <li key={task.id} className="bg-white p-4 rounded shadow">
-              <div className="cursor-pointer" onClick={() => navigate(`/tasks/${task.id}`)}>
+              <div className="cursor-pointer" onClick={() => navigate(`/tasks/${task.id}`, { state: { currentUser } })}>
                 <div className="font-semibold text-lg text-yellow-300">{task.title}</div>
                 <div className="text-gray-400 text-sm">Budget: {task.budget}</div>
                 <div className="text-blue-300 text-xs">Tags: {task.tags}</div>
