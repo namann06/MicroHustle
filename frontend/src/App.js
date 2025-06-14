@@ -8,6 +8,8 @@ import Notifications from './Notifications';
 import PosterTasks from './PosterTasks';
 import HustlerTasks from './HustlerTasks';
 import useUnreadNotifications from './useUnreadNotifications';
+import HustlerInbox from './HustlerInbox';
+import PosterInbox from './PosterInbox';
 
 function App() {
   const [page, setPage] = useState('home');
@@ -45,10 +47,14 @@ function App() {
           <>
             <button onClick={() => setPage('post')}>Post Task</button>
             <button onClick={() => setPage('posterTasks')}>My Tasks</button>
+            <button onClick={() => setPage('posterInbox')}>Inbox</button>
           </>
-        )}
+        )} 
         {currentUser && currentUser.role === 'HUSTLER' && (
-          <button onClick={() => setPage('hustlerTasks')}>My Tasks</button>
+          <>
+            <button onClick={() => setPage('hustlerTasks')}>My Tasks</button>
+            <button onClick={() => setPage('inbox')}>Inbox</button>
+          </>
         )}
         {currentUser && (
           <button onClick={() => setPage('notifications')} title="Updates" className="relative text-2xl">
@@ -79,6 +85,8 @@ function App() {
         {page === 'post' && currentUser && currentUser.role === 'POSTER' && <PostTask currentUser={currentUser} />}
         {page === 'posterTasks' && currentUser && currentUser.role === 'POSTER' && <PosterTasks currentUser={currentUser} />}
         {page === 'hustlerTasks' && currentUser && currentUser.role === 'HUSTLER' && <HustlerTasks currentUser={currentUser} />}
+        {page === 'inbox' && currentUser && currentUser.role === 'HUSTLER' && <HustlerInbox currentUser={currentUser} />}
+        {page === 'posterInbox' && currentUser && currentUser.role === 'POSTER' && <PosterInbox currentUser={currentUser} />}
         {page === 'notifications' && <Notifications currentUser={currentUser} />}
         {page === 'login' && !currentUser && <Login setCurrentUser={handleLogin} />}
         {page === 'login' && currentUser && <div className="text-green-700">Already logged in.</div>}

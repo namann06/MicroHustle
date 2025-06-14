@@ -1,6 +1,7 @@
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\config\CorsConfig.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\controller\UserController.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\config\WebSocketConfig.java
+C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\repository\MessageRepository.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\model\User.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\MicroHustleApplication.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\service\NotificationWebSocketService.java
@@ -11,7 +12,9 @@ C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhus
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\model\Notification.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\model\Task.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\config\SimpleCorsFilter.java
+C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\controller\MessageController.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\repository\NotificationRepository.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\config\WebSecurityConfig.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\controller\NotificationController.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\repository\UserRepository.java
+C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\model\Message.java

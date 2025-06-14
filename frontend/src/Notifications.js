@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import ChatModal from './ChatModal';
 
 function Notifications({ currentUser }) {
   const [notifications, setNotifications] = useState([]);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatProps, setChatProps] = useState(null);
   // Fetch initial unread notifications
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
@@ -41,6 +44,16 @@ function Notifications({ currentUser }) {
 
   if (!currentUser || currentUser.role !== 'POSTER') return <div className="text-white">Login as a poster to see updates.</div>;
 
+
+  const openChat = (notif) => {
+    setChatProps({
+      currentUser,
+      otherUser: { id: notif.hustlerId, username: notif.hustlerUsername },
+      task: { id: notif.taskId, title: notif.taskTitle }
+    });
+    setChatOpen(true);
+  };
+
   return (
     <div className="max-w-xl mx-auto bg-[#1a2233] p-6 rounded mt-8 shadow">
       <h2 className="text-2xl font-bold text-yellow-300 mb-4">Task Updates</h2>
@@ -57,10 +70,20 @@ function Notifications({ currentUser }) {
                 Accepted by: {n.hustlerUsername ? n.hustlerUsername : `ID: ${n.hustlerId}`}
               </div>
               <div className="text-gray-400 text-sm">Received: {new Date(n.createdAt).toLocaleString()}</div>
-              <button className="bg-green-600 text-white px-3 py-1 rounded self-start" onClick={() => markAsRead(n.id)}>Mark as Read</button>
+              <div className="flex gap-2">
+                <button className="bg-green-600 text-white px-3 py-1 rounded self-start" onClick={() => markAsRead(n.id)}>Mark as Read</button>
+                <button className="bg-blue-600 text-white px-3 py-1 rounded self-start" onClick={() => openChat(n)}>Message</button>
+              </div>
             </li>
           ))}
         </ul>
+      )}
+      {chatOpen && chatProps && (
+        <ChatModal
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          {...chatProps}
+        />
       )}
     </div>
   );
