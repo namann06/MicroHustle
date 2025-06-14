@@ -16,6 +16,10 @@ public class TaskController {
     private com.microhustle.repository.UserRepository userRepository;
     @Autowired
     private com.microhustle.repository.NotificationRepository notificationRepository;
+    @Autowired
+    private com.microhustle.service.NotificationWebSocketService notificationWebSocketService;
+    @Autowired
+    private com.microhustle.controller.NotificationController notificationController;
 
     @PostMapping
     public Task postTask(@RequestBody Task task) {
@@ -42,7 +46,14 @@ public class TaskController {
         taskRepository.save(task);
         // Create notification for poster
         if (task.getPoster() != null) {
-            notificationRepository.save(new com.microhustle.model.Notification(task.getPoster().getId(), task.getId(), hustler.getId()));
+            com.microhustle.model.Notification notif = notificationRepository.save(new com.microhustle.model.Notification(task.getPoster().getId(), task.getId(), hustler.getId()));
+            // Build NotificationDTO for WebSocket
+            String taskTitle = task.getTitle();
+            String hustlerUsername = hustler.getUsername();
+            com.microhustle.controller.NotificationController.NotificationDTO dto =
+                new com.microhustle.controller.NotificationController.NotificationDTO(
+                    notif, taskTitle, hustlerUsername);
+            notificationWebSocketService.sendNotificationToPoster(task.getPoster().getId(), dto);
         }
         return ResponseEntity.ok(task);
     }
