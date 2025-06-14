@@ -1,10 +1,16 @@
+com\microhustle\controller\NotificationController.class
 com\microhustle\controller\UserController.class
 com\microhustle\controller\TaskController.class
+com\microhustle\config\WebSecurityConfig.class
 com\microhustle\repository\UserRepository.class
+com\microhustle\controller\NotificationController$NotificationDTO.class
 com\microhustle\model\User$Role.class
 com\microhustle\model\Offer.class
 com\microhustle\repository\OfferRepository.class
 com\microhustle\model\Task.class
+com\microhustle\repository\NotificationRepository.class
+com\microhustle\config\SimpleCorsFilter.class
 com\microhustle\repository\TaskRepository.class
 com\microhustle\MicroHustleApplication.class
+com\microhustle\model\Notification.class
 com\microhustle\model\User.class
