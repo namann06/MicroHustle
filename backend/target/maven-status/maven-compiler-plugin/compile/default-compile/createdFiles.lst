@@ -9,6 +9,8 @@ com\microhustle\model\Offer.class
 com\microhustle\repository\OfferRepository.class
 com\microhustle\model\Task.class
 com\microhustle\repository\NotificationRepository.class
+com\microhustle\service\NotificationWebSocketService.class
+com\microhustle\config\WebSocketConfig.class
 com\microhustle\config\SimpleCorsFilter.class
 com\microhustle\repository\TaskRepository.class
 com\microhustle\MicroHustleApplication.class

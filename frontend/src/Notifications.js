@@ -1,12 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 function Notifications({ currentUser }) {
   const [notifications, setNotifications] = useState([]);
+  // Fetch initial unread notifications
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
     fetch(`http://localhost:8080/api/notifications/poster/${currentUser.id}?unread=true`)
       .then(res => res.json())
       .then(setNotifications);
+  }, [currentUser]);
+
+  // WebSocket for real-time notifications
+  const stompClientRef = useRef(null);
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== 'POSTER') return;
+    const socket = new SockJS('http://localhost:8080/ws/notifications');
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        stompClient.subscribe(`/topic/notifications/${currentUser.id}`, (message) => {
+          const notif = JSON.parse(message.body);
+          setNotifications(prev => [notif, ...prev]);
+        });
+      },
+    });
+    stompClient.activate();
+    stompClientRef.current = stompClient;
+    return () => {
+      if (stompClientRef.current) stompClientRef.current.deactivate();
+    };
   }, [currentUser]);
 
   const markAsRead = async (id) => {

@@ -1,7 +1,9 @@
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\config\CorsConfig.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\controller\UserController.java
+C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\config\WebSocketConfig.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\model\User.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\MicroHustleApplication.java
+C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\service\NotificationWebSocketService.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\model\Offer.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\controller\TaskController.java
 C:\Users\KIIT0001\CascadeProjects\MicroHustle\backend\src\main\java\com\microhustle\repository\OfferRepository.java
