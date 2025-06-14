@@ -14,6 +14,8 @@ public class TaskController {
     private TaskRepository taskRepository;
     @Autowired
     private com.microhustle.repository.UserRepository userRepository;
+    @Autowired
+    private com.microhustle.repository.NotificationRepository notificationRepository;
 
     @PostMapping
     public Task postTask(@RequestBody Task task) {
@@ -38,6 +40,10 @@ public class TaskController {
         hustler.getAcceptedTasks().add(task);
         userRepository.save(hustler);
         taskRepository.save(task);
+        // Create notification for poster
+        if (task.getPoster() != null) {
+            notificationRepository.save(new com.microhustle.model.Notification(task.getPoster().getId(), task.getId(), hustler.getId()));
+        }
         return ResponseEntity.ok(task);
     }
 
