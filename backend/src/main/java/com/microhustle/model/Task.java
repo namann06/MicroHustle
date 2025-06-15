@@ -30,6 +30,15 @@ public class Task {
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"postedTasks", "acceptedTasks", "password"})
     private java.util.Set<User> acceptedHustlers = new java.util.HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "task_completed_hustlers",
+        joinColumns = @JoinColumn(name = "task_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"postedTasks", "acceptedTasks", "password"})
+    private java.util.Set<User> completedHustlers = new java.util.HashSet<>();
+
     public Task() {}
 
     public Long getId() { return id; }
@@ -50,4 +59,7 @@ public class Task {
     public void setPoster(User poster) { this.poster = poster; }
     public java.util.Set<User> getAcceptedHustlers() { return acceptedHustlers; }
     public void setAcceptedHustlers(java.util.Set<User> acceptedHustlers) { this.acceptedHustlers = acceptedHustlers; }
+    public java.util.Set<User> getCompletedHustlers() { return completedHustlers; }
+    public void setCompletedHustlers(java.util.Set<User> completedHustlers) { this.completedHustlers = completedHustlers; }
 }
+

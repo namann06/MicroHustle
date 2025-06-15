@@ -2,11 +2,13 @@ import React, { useEffect, useState, useRef } from "react";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import ChatModal from './ChatModal';
+import StarRating from './StarRating';
 
 function Notifications({ currentUser }) {
   const [notifications, setNotifications] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatProps, setChatProps] = useState(null);
+  const [hustlerRatings, setHustlerRatings] = useState({});
   // Fetch initial unread notifications
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
@@ -14,6 +16,19 @@ function Notifications({ currentUser }) {
       .then(res => res.json())
       .then(setNotifications);
   }, [currentUser]);
+
+  // Fetch hustler ratings for notifications
+  useEffect(() => {
+    const uniqueHustlerIds = Array.from(new Set(notifications.map(n => n.hustlerId).filter(Boolean)));
+    uniqueHustlerIds.forEach(hustlerId => {
+      if (hustlerRatings[hustlerId] === undefined) {
+        fetch(`http://localhost:8080/api/ratings/hustler/${hustlerId}/average`)
+          .then(res => res.json())
+          .then(avg => setHustlerRatings(r => ({ ...r, [hustlerId]: avg })));
+      }
+    });
+    // eslint-disable-next-line
+  }, [notifications]);
 
   // WebSocket for real-time notifications
   const stompClientRef = useRef(null);
@@ -68,6 +83,11 @@ function Notifications({ currentUser }) {
               </div>
               <div className="text-white mb-2">
                 Accepted by: {n.hustlerUsername ? n.hustlerUsername : `ID: ${n.hustlerId}`}
+                {n.hustlerId && (
+                  <span className="ml-2 align-middle">
+                    <StarRating value={hustlerRatings[n.hustlerId]} />
+                  </span>
+                )}
               </div>
               <div className="text-gray-400 text-sm">Received: {new Date(n.createdAt).toLocaleString()}</div>
               <div className="flex gap-2">

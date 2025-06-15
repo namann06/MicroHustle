@@ -82,4 +82,24 @@ public class TaskController {
     public List<Task> getTasksByAcceptedHustler(@PathVariable Long hustlerId) {
         return taskRepository.findByAcceptedHustlers_Id(hustlerId);
     }
+
+    // Mark a hustler as completed for a task
+    @PostMapping("/{taskId}/complete")
+    public ResponseEntity<?> markHustlerAsCompleted(@PathVariable Long taskId, @RequestParam Long hustlerId) {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task == null) {
+            return ResponseEntity.badRequest().body("Task not found");
+        }
+        com.microhustle.model.User hustler = userRepository.findById(hustlerId).orElse(null);
+        if (hustler == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+        if (!task.getAcceptedHustlers().contains(hustler)) {
+            return ResponseEntity.badRequest().body("Hustler not accepted for this task");
+        }
+        task.getCompletedHustlers().add(hustler);
+        taskRepository.save(task);
+        return ResponseEntity.ok("Marked as completed");
+    }
 }
+
