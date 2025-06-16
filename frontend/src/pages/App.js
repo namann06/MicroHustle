@@ -10,12 +10,20 @@ import HustlerTasks from '../components/HustlerTasks';
 import useUnreadNotifications from '../hooks/useUnreadNotifications';
 import HustlerInbox from '../components/HustlerInbox';
 import PosterInbox from '../components/PosterInbox';
+import UserProfile from '../components/UserProfile';
 
 function App() {
   const [page, setPage] = useState('home');
   const [currentUser, setCurrentUser] = useState(null);
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.detail && e.detail.username) setPage('publicProfile:' + e.detail.username);
+    };
+    window.addEventListener('viewPublicProfile', handler);
+    return () => window.removeEventListener('viewPublicProfile', handler);
+  }, []);
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -69,10 +77,13 @@ function App() {
         {!currentUser && <button onClick={() => setPage('login')}>Login</button>}
         {!currentUser && <button onClick={() => setPage('register')}>Register</button>}
         {currentUser && (
-          <span className="ml-auto flex items-center gap-2">
-            <span className="text-gray-600">Logged in as <b>{currentUser.username}</b> ({currentUser.role})</span>
-            <button onClick={handleLogout} className="bg-red-500 text-white px-2 py-1 rounded">Logout</button>
-          </span>
+          <>
+            <button onClick={() => setPage('profile')}>Profile</button>
+            <span className="ml-auto flex items-center gap-2">
+              <span className="text-gray-600">Logged in as <b>{currentUser.username}</b> ({currentUser.role})</span>
+              <button onClick={handleLogout} className="bg-red-500 text-white px-2 py-1 rounded">Logout</button>
+            </span>
+          </>
         )}
       </nav>
       <div className="p-0 w-full">
@@ -93,6 +104,16 @@ function App() {
         {page === 'register' && !currentUser && <Register setCurrentUser={setCurrentUser} />}
         {page === 'register' && currentUser && <div className="text-green-700">Already logged in.</div>}
       </div>
+      {page === 'profile' && currentUser && (
+        <div className="p-4">
+          <UserProfile userId={currentUser.id} />
+        </div>
+      )}
+      {page.startsWith('publicProfile:') && (
+        <div className="p-4">
+          <UserProfile username={page.split(':')[1]} />
+        </div>
+      )}
     </div>
   );
 }

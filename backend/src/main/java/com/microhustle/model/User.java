@@ -14,6 +14,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private String profilePicUrl; // URL to profile picture
+    @Column(length = 512)
+    private String bio; // Short biography
+
     public enum Role {
         POSTER, HUSTLER
     }
@@ -43,4 +47,10 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public String getProfilePicUrl() { return profilePicUrl; }
+    public void setProfilePicUrl(String profilePicUrl) { this.profilePicUrl = profilePicUrl; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 }
