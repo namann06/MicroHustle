@@ -8,6 +8,7 @@ com\microhustle\controller\MessageController$PosterInboxThreadDTO.class
 com\microhustle\model\Task.class
 com\microhustle\controller\HustlerRatingController.class
 com\microhustle\config\WebSocketConfig.class
+com\microhustle\controller\FileUploadController.class
 com\microhustle\MicroHustleApplication.class
 com\microhustle\model\Notification.class
 com\microhustle\repository\MessageRepository.class
