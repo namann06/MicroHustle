@@ -26,6 +26,8 @@ public class MessageController {
     private UserRepository userRepository;
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
+    private org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     // Send a message (with optional attachment URL)
     @PostMapping("/send")
@@ -50,6 +52,9 @@ public class MessageController {
         msg.setAttachmentUrl(attachmentUrl);
         msg.setRead(false);
         messageRepository.save(msg);
+        // Broadcast to WebSocket topic for this chat thread
+        String topic = String.format("/topic/chat/%d-%d-%d", taskId, Math.min(senderId, recipientId), Math.max(senderId, recipientId));
+        messagingTemplate.convertAndSend(topic, msg);
         return ResponseEntity.ok(msg);
     }
 

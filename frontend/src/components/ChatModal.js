@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 function isImage(filename) {
   return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(filename);
@@ -31,14 +33,64 @@ export default function ChatModal({
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [attachment, setAttachment] = useState(null);
+  const [otherTyping, setOtherTyping] = useState(false);
   const fileInputRef = useRef();
+  const messagesEndRef = useRef(null);
+  const stompRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
     fetch(`http://localhost:8080/api/messages/thread?taskId=${task.id}&userA=${currentUser.id}&userB=${otherUser.id}`)
       .then(res => res.json())
       .then(setMessages);
+
+    // Setup STOMP client for real-time chat
+    const minId = Math.min(currentUser.id, otherUser.id);
+    const maxId = Math.max(currentUser.id, otherUser.id);
+    const topic = `/topic/chat/${task.id}-${minId}-${maxId}`;
+    const typingTopic = `/topic/chat/${task.id}-${minId}-${maxId}/typing`;
+    const socket = new SockJS('http://localhost:8080/ws/notifications');
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      debug: () => {},
+    });
+    stompRef.current = stompClient;
+    stompClient.onConnect = () => {
+      stompClient.subscribe(topic, (message) => {
+        const msg = JSON.parse(message.body);
+        setMessages(m => {
+          // Mark as read if recipient is current user and not already read
+          if (msg.recipient.id === currentUser.id && !msg.read) {
+            fetch(`http://localhost:8080/api/messages/${msg.id}/read`, { method: 'POST' });
+          }
+          return [...m, msg];
+        });
+      });
+      stompClient.subscribe(typingTopic, (msg) => {
+        const typing = JSON.parse(msg.body);
+        if (typing.userId === otherUser.id) {
+          setOtherTyping(true);
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = setTimeout(() => setOtherTyping(false), 2000);
+        }
+      });
+    };
+    stompClient.activate();
+
+    return () => {
+      stompClient.deactivate();
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
   }, [open, currentUser, otherUser, task]);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const sendMessage = async () => {
     if (!input && !attachment) return;
@@ -68,8 +120,6 @@ export default function ChatModal({
     const res = await fetch(`http://localhost:8080/api/messages/send?senderId=${currentUser.id}&recipientId=${otherUser.id}&taskId=${task.id}&content=${encodeURIComponent(input)}${attachmentUrl ? `&attachmentUrl=${encodeURIComponent(attachmentUrl)}` : ''}`,
       { method: 'POST' });
     if (res.ok) {
-      const msg = await res.json();
-      setMessages(m => [...m, msg]);
       setInput("");
       setAttachment(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -115,11 +165,13 @@ export default function ChatModal({
                         </a>
                       )
                   )}
-                  <div className="text-[10px] text-right mt-1">{new Date(msg.sentAt).toLocaleTimeString()} {msg.read ? '✓' : ''}</div>
+                  <div className="text-[10px] text-right mt-1">{new Date(msg.sentAt).toLocaleTimeString()} {msg.sender.id === currentUser.id && (msg.read ? '✓✓' : '✓')}</div>
                 </div>
               </div>
             ))
           )}
+          {otherTyping && <div className="text-xs text-gray-500 italic mt-1">{otherUser.username} is typing...</div>}
+          <div ref={messagesEndRef}></div>
         </div>
         <div className="flex gap-2">
           <input
@@ -127,7 +179,19 @@ export default function ChatModal({
             className="flex-1 border rounded px-2 py-1"
             placeholder="Type a message..."
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => {
+              setInput(e.target.value);
+              // Send typing event
+              if (stompRef.current && stompRef.current.connected) {
+                const minId = Math.min(currentUser.id, otherUser.id);
+                const maxId = Math.max(currentUser.id, otherUser.id);
+                const typingTopic = `/topic/chat/${task.id}-${minId}-${maxId}/typing`;
+                stompRef.current.publish({
+                  destination: typingTopic,
+                  body: JSON.stringify({ userId: currentUser.id })
+                });
+              }
+            }}
             onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
           />
           <input
