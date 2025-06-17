@@ -25,6 +25,13 @@ function TaskList({ currentUser, search }) {
     fetchTasks();
   };
 
+  const handlePosterClick = (username) => {
+    // Update browser URL for better routing/bookmarking
+    window.history.pushState({}, '', `/profile/${encodeURIComponent(username)}`);
+    const ev = new CustomEvent('viewPublicProfile', { detail: { username } });
+    window.dispatchEvent(ev);
+  };
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Tasks</h2>
@@ -44,6 +51,17 @@ function TaskList({ currentUser, search }) {
           const hasAccepted = currentUser && acceptedIds.includes(currentUser.id);
           return (
             <li key={task.id} className="bg-white p-4 rounded shadow">
+              {/* Poster info */}
+              {task.poster && (
+                <div className="flex items-center mb-2 cursor-pointer" onClick={() => handlePosterClick(task.poster.username)}>
+                  <img
+                    src={(task.poster.profilePicUrl && task.poster.profilePicUrl.startsWith('/')) ? `http://localhost:8080${task.poster.profilePicUrl}` : (task.poster.profilePicUrl || 'https://ui-avatars.com/api/?name=' + task.poster.username) }
+                    alt="poster"
+                    className="w-10 h-10 rounded-full mr-2"
+                  />
+                  <span className="text-sm text-gray-600 hover:underline">{task.poster.username}</span>
+                </div>
+              )}
               <div className="cursor-pointer" onClick={() => navigate(`/tasks/${task.id}`, { state: { currentUser } })}>
                 <div className="font-semibold text-lg text-yellow-300">{task.title}</div>
                 <div className="text-gray-400 text-sm">Budget: {task.budget}</div>

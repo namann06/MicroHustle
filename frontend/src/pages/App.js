@@ -17,12 +17,34 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [search, setSearch] = useState("");
 
+  // Handle custom event to view public profile
   useEffect(() => {
     const handler = (e) => {
-      if (e.detail && e.detail.username) setPage('publicProfile:' + e.detail.username);
+      if (e.detail && e.detail.username) {
+        setPage('publicProfile:' + e.detail.username);
+      }
     };
     window.addEventListener('viewPublicProfile', handler);
     return () => window.removeEventListener('viewPublicProfile', handler);
+  }, []);
+
+  // Sync page state with browser history (back/forward)
+  useEffect(() => {
+    const computePageFromPath = () => {
+      const path = window.location.pathname;
+      if (path.startsWith('/profile/')) {
+        const uname = decodeURIComponent(path.split('/')[2] || '');
+        if (uname) return 'publicProfile:' + uname;
+      }
+      return 'home';
+    };
+    // On mount
+    setPage(computePageFromPath());
+    const popHandler = () => {
+      setPage(computePageFromPath());
+    };
+    window.addEventListener('popstate', popHandler);
+    return () => window.removeEventListener('popstate', popHandler);
   }, []);
 
   // Load user from localStorage on mount
