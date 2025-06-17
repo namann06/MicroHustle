@@ -13,27 +13,32 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
   // Fetch profile (by id for own, or by username for public)
   useEffect(() => {
     setLoading(true);
+    const base = "http://localhost:8080";
     let url = userId
-      ? `http://localhost:8080/api/users/${userId}/profile`
-      : `http://localhost:8080/api/users/public/${username}`;
+      ? `${base}/api/users/${userId}/profile`
+      : `${base}/api/users/public/${encodeURIComponent(username)}`;
     fetch(url)
-      .then(res => res.json())
+      .then(async res => {
+        if (!res.ok) throw new Error('Profile not found');
+        return res.json();
+      })
       .then(data => {
         setProfile(data);
         setBio(data.bio || "");
         setProfilePicUrl(data.profilePicUrl || "");
         if (data.role === "HUSTLER") {
-          fetch(`http://localhost:8080/api/users/${data.id}/hustler-completed-tasks`)
-            .then(res => res.json())
+          fetch(`${base}/api/users/${data.id}/hustler-completed-tasks`)            .then(res => res.json())
             .then(setTasks);
-          fetch(`http://localhost:8080/api/users/${data.id}/hustler-ratings`)
-            .then(res => res.json())
+          fetch(`${base}/api/users/${data.id}/hustler-ratings`)            .then(res => res.json())
             .then(setRatings);
         } else if (data.role === "POSTER") {
-          fetch(`http://localhost:8080/api/users/${data.id}/poster-tasks`)
-            .then(res => res.json())
+          fetch(`${base}/api/users/${data.id}/poster-tasks`)            .then(res => res.json())
             .then(setTasks);
         }
+      })
+      .catch(err => {
+        console.error(err);
+        setProfile(null);
       })
       .finally(() => setLoading(false));
   }, [userId, username]);

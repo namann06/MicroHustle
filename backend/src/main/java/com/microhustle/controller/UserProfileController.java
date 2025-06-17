@@ -8,6 +8,8 @@ import com.microhustle.repository.TaskRepository;
 import com.microhustle.repository.HustlerRatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import java.util.*;
 
 @RestController
@@ -36,17 +38,19 @@ public class UserProfileController {
 
     // Public profile by username
     @GetMapping("/public/{username}")
-    public Map<String, Object> getPublicProfile(@PathVariable String username) {
-        Optional<User> userOpt = userRepository.findAll().stream().filter(u -> u.getUsername().equals(username)).findFirst();
-        if (!userOpt.isPresent()) return Collections.singletonMap("error", "User not found");
-        User user = userOpt.get();
+    public ResponseEntity<?> getPublicProfile(@PathVariable String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User not found"));
+        }
         Map<String, Object> profile = new HashMap<>();
         profile.put("id", user.getId());
         profile.put("username", user.getUsername());
         profile.put("role", user.getRole());
         profile.put("bio", user.getBio());
         profile.put("profilePicUrl", user.getProfilePicUrl());
-        return profile;
+        return ResponseEntity.ok(profile);
     }
 
     // Update profile (bio, profilePicUrl)
