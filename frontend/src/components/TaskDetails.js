@@ -5,13 +5,26 @@ function TaskDetails({ taskId, onBack, currentUser }) {
   const [task, setTask] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatProps, setChatProps] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     fetch(`http://localhost:8080/api/tasks/${taskId}`)
-      .then(res => res.json())
-      .then(setTask);
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load task details');
+        return res.json();
+      })
+      .then(setTask)
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
   }, [taskId]);
 
-  if (!task) return <div className="text-white">Loading...</div>;
+  if (loading) return <div className="text-white">Loading task details...</div>;
+  if (error) return <div className="text-white">{error}</div>;
+  if (!task) return <div className="text-white">Task not found.</div>;
+
   return (
     <div className="max-w-xl mx-auto bg-[#1a2233] p-6 rounded mt-8 shadow">
       <button className="mb-4 text-blue-400" onClick={onBack}>← Back</button>

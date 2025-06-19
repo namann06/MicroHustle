@@ -6,11 +6,20 @@ function TaskList({ currentUser, search }) {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [accepting, setAccepting] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchTasks = () => {
+    setLoading(true);
+    setError(null);
     fetch('http://localhost:8080/api/tasks')
-      .then(res => res.json())
-      .then(data => setTasks(data));
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load tasks');
+        return res.json();
+      })
+      .then(data => setTasks(data))
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -20,9 +29,16 @@ function TaskList({ currentUser, search }) {
   const handleAccept = async (taskId) => {
     if (!currentUser) return;
     setAccepting(taskId);
-    await fetch(`http://localhost:8080/api/tasks/${taskId}/accept?hustlerId=${currentUser.id}`, { method: 'POST' });
-    setAccepting(null);
-    fetchTasks();
+    setError(null);
+    try {
+      const res = await fetch(`http://localhost:8080/api/tasks/${taskId}/accept?hustlerId=${currentUser.id}`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to accept task');
+      fetchTasks();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAccepting(null);
+    }
   };
 
   const handlePosterClick = (username) => {
@@ -31,6 +47,9 @@ function TaskList({ currentUser, search }) {
     const ev = new CustomEvent('viewPublicProfile', { detail: { username } });
     window.dispatchEvent(ev);
   };
+
+  if (loading) return <div className="text-center py-8">Loading tasks...</div>;
+  if (error) return <div className="text-center text-red-500 py-8">{error}</div>;
 
   return (
     <div>

@@ -5,14 +5,20 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
   const [tasks, setTasks] = useState([]);
   const [ratings, setRatings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [bio, setBio] = useState("");
   const [profilePicUrl, setProfilePicUrl] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef();
 
   // Fetch profile (by id for own, or by username for public)
   useEffect(() => {
     setLoading(true);
+    setError(null);
     const base = "http://localhost:8080";
     let url = userId
       ? `${base}/api/users/${userId}/profile`
@@ -37,45 +43,54 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
         }
       })
       .catch(err => {
-        console.error(err);
+        setError(err.message);
         setProfile(null);
       })
       .finally(() => setLoading(false));
   }, [userId, username]);
 
   // Handle profile pic upload
-  const handlePicUpload = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    // Upload to backend
-    const formData = new FormData();
-    formData.append('file', file);
-    const res = await fetch('http://localhost:8080/api/files/upload', {
-      method: 'POST',
-      body: formData
-    });
-    if (res.ok) {
+  const handlePicUpload = async (e) => {
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const file = e.target.files[0];
+      if (!file) throw new Error('No file selected');
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('http://localhost:8080/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      if (!res.ok) throw new Error('Profile picture upload failed');
       let url = await res.text();
       if (url.startsWith('"') && url.endsWith('"')) url = url.substring(1, url.length - 1);
       setProfilePicUrl(url);
-    } else {
-      alert('Profile picture upload failed');
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploading(false);
     }
   };
 
   // Save profile changes
   const handleSave = async () => {
     if (!profile) return;
-    const res = await fetch(`http://localhost:8080/api/users/${profile.id}/profile`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bio, profilePicUrl })
-    });
-    if (res.ok) {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch(`http://localhost:8080/api/users/${profile.id}/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bio, profilePicUrl })
+      });
+      if (!res.ok) throw new Error('Failed to update profile');
       setEditMode(false);
       setProfile(p => ({ ...p, bio, profilePicUrl }));
-    } else {
-      alert('Failed to update profile');
+    } catch (err) {
+      setSaveError(err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -100,6 +115,11 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
                 onChange={handlePicUpload}
                 className="block mb-1"
               />
+              {uploading ? (
+                <span>Uploading...</span>
+              ) : (
+                uploadError && <span className="text-red-500 ml-2">{uploadError}</span>
+              )}
               <textarea
                 className="border rounded px-2 py-1 w-full mb-2"
                 rows={2}
@@ -107,7 +127,14 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
                 onChange={e => setBio(e.target.value)}
                 placeholder="Write something about yourself..."
               />
-              <button className="bg-blue-600 text-white px-3 py-1 rounded mr-2" onClick={handleSave}>Save</button>
+              <button
+                className="bg-green-600 text-white px-3 py-1 rounded mr-2"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              {saveError && <span className="text-red-500 ml-2">{saveError}</span>}
               <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => setEditMode(false)}>Cancel</button>
             </>
           ) : (
