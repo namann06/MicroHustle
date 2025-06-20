@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ChatModal from "./ChatModal";
 
-export default function PosterInbox({ currentUser }) {
+export default function PosterInbox({ currentUser, onInboxRead }) {
   const [threads, setThreads] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatProps, setChatProps] = useState(null);
@@ -65,7 +65,12 @@ export default function PosterInbox({ currentUser }) {
             if (currentUser) {
               fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
                 .then(res => res.json())
-                .then(data => setThreads(Array.isArray(data) ? data : []));
+                .then(data => {
+                  setThreads(Array.isArray(data) ? data : []);
+                  if (typeof onInboxRead === 'function') onInboxRead();
+                });
+            } else {
+              if (typeof onInboxRead === 'function') onInboxRead();
             }
           }}
           {...chatProps}
