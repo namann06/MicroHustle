@@ -111,9 +111,16 @@ public class MessageController {
             if (msg.getTask() == null) continue;
             Task task = msg.getTask();
             if (task.getPoster() == null || !task.getPoster().getId().equals(userId)) continue;
-            // Find the other participant (hustler)
-            User hustler = msg.getSender().getId().equals(userId) ? msg.getRecipient() : msg.getSender();
-            if (hustler == null || hustler.getId().equals(userId)) continue;
+            // Always get the hustler as the non-poster participant
+            User sender = msg.getSender();
+            User recipient = msg.getRecipient();
+            User hustler = null;
+            if (sender != null && !sender.getId().equals(userId) && sender.getRole() == User.Role.HUSTLER) {
+                hustler = sender;
+            } else if (recipient != null && !recipient.getId().equals(userId) && recipient.getRole() == User.Role.HUSTLER) {
+                hustler = recipient;
+            }
+            if (hustler == null) continue;
             String key = task.getId() + ":" + hustler.getId();
             PosterInboxThreadDTO thread = threads.get(key);
             if (thread == null) {
