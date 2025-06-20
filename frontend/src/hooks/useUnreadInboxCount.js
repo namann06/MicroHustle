@@ -23,18 +23,28 @@ export default function useUnreadInboxCount(currentUser, refreshTrigger = 0) {
       url = `http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`;
     }
     if (!url) return;
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          // Each thread has unreadCount
-          const totalUnread = data.reduce((acc, t) => acc + (t.unreadCount || 0), 0);
-          setUnreadCount(totalUnread);
-        } else {
-          setUnreadCount(0);
-        }
-      })
-      .catch(() => setUnreadCount(0));
+
+    let stopped = false;
+    const fetchUnread = () => {
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          if (stopped) return;
+          if (Array.isArray(data)) {
+            const totalUnread = data.reduce((acc, t) => acc + (t.unreadCount || 0), 0);
+            setUnreadCount(totalUnread);
+          } else {
+            setUnreadCount(0);
+          }
+        })
+        .catch(() => { if (!stopped) setUnreadCount(0); });
+    };
+    fetchUnread(); // initial fetch
+    const interval = setInterval(fetchUnread, 5000); // poll every 5s
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
   }, [currentUser, refreshTrigger]);
 
   return unreadCount;
