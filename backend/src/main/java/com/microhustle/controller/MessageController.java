@@ -148,6 +148,52 @@ public class MessageController {
         public int unreadCount;
     }
 
+    // Mark all messages in a thread as read for the poster
+    @PostMapping("/mark-thread-read")
+    public ResponseEntity<?> markThreadRead(
+        @RequestParam Long taskId,
+        @RequestParam Long posterId,
+        @RequestParam Long hustlerId
+    ) {
+        List<Message> messages = messageRepository.findByTaskIdAndSenderIdInAndRecipientIdInOrderBySentAtAsc(
+            taskId,
+            java.util.Arrays.asList(posterId, hustlerId),
+            java.util.Arrays.asList(posterId, hustlerId)
+        );
+        int count = 0;
+        for (Message msg : messages) {
+            if (!msg.isRead() && msg.getRecipient() != null && msg.getRecipient().getId().equals(posterId)) {
+                msg.setRead(true);
+                messageRepository.save(msg);
+                count++;
+            }
+        }
+        return ResponseEntity.ok(java.util.Collections.singletonMap("updated", count));
+    }
+
+    // Mark all messages in a thread as read for the hustler
+    @PostMapping("/mark-thread-read-hustler")
+    public ResponseEntity<?> markThreadReadHustler(
+        @RequestParam Long taskId,
+        @RequestParam Long posterId,
+        @RequestParam Long hustlerId
+    ) {
+        List<Message> messages = messageRepository.findByTaskIdAndSenderIdInAndRecipientIdInOrderBySentAtAsc(
+            taskId,
+            java.util.Arrays.asList(posterId, hustlerId),
+            java.util.Arrays.asList(posterId, hustlerId)
+        );
+        int count = 0;
+        for (Message msg : messages) {
+            if (!msg.isRead() && msg.getRecipient() != null && msg.getRecipient().getId().equals(hustlerId)) {
+                msg.setRead(true);
+                messageRepository.save(msg);
+                count++;
+            }
+        }
+        return ResponseEntity.ok(java.util.Collections.singletonMap("updated", count));
+    }
+
     public static class InboxThreadDTO {
         public Long taskId;
         public String taskTitle;

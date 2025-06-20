@@ -16,6 +16,12 @@ export default function PosterInbox({ currentUser }) {
       });
   }, [currentUser]);
 
+  const markThreadRead = (taskId, posterId, hustlerId) => {
+    return fetch(`http://localhost:8080/api/messages/mark-thread-read?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
+      method: 'POST'
+    });
+  };
+
   const openChat = (thread) => {
     setChatProps({
       currentUser,
@@ -23,6 +29,8 @@ export default function PosterInbox({ currentUser }) {
       task: { id: thread.taskId, title: thread.taskTitle }
     });
     setChatOpen(true);
+    // Mark all as read for this thread
+    markThreadRead(thread.taskId, currentUser.id, thread.hustlerId);
   };
 
   if (!currentUser || currentUser.role !== 'POSTER') return <div className="text-white">Login as a poster to see your inbox.</div>;
@@ -51,7 +59,15 @@ export default function PosterInbox({ currentUser }) {
       {chatOpen && chatProps && (
         <ChatModal
           open={chatOpen}
-          onClose={() => setChatOpen(false)}
+          onClose={() => {
+            setChatOpen(false);
+            // Refresh threads to update unread counts
+            if (currentUser) {
+              fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
+                .then(res => res.json())
+                .then(data => setThreads(Array.isArray(data) ? data : []));
+            }
+          }}
           {...chatProps}
         />
       )}

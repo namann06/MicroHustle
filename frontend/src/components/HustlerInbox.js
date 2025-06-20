@@ -16,6 +16,12 @@ export default function HustlerInbox({ currentUser }) {
       });
   }, [currentUser]);
 
+  const markThreadReadHustler = (taskId, posterId, hustlerId) => {
+    return fetch(`http://localhost:8080/api/messages/mark-thread-read-hustler?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
+      method: 'POST'
+    });
+  };
+
   const openChat = (thread) => {
     setChatProps({
       currentUser,
@@ -23,6 +29,8 @@ export default function HustlerInbox({ currentUser }) {
       task: { id: thread.taskId, title: thread.taskTitle }
     });
     setChatOpen(true);
+    // Mark all as read for this thread for hustler
+    markThreadReadHustler(thread.taskId, thread.posterId, currentUser.id);
   };
 
   if (!currentUser || currentUser.role !== 'HUSTLER') return <div className="text-white">Login as a hustler to see your inbox.</div>;
@@ -51,7 +59,20 @@ export default function HustlerInbox({ currentUser }) {
       {chatOpen && chatProps && (
         <ChatModal
           open={chatOpen}
-          onClose={() => setChatOpen(false)}
+          onClose={async () => {
+            setChatOpen(false);
+            // Await mark as read before refreshing threads
+            if (currentUser && chatProps) {
+              await markThreadReadHustler(
+                chatProps.task.id,
+                chatProps.otherUser.id, // posterId
+                currentUser.id           // hustlerId
+              );
+              fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`)
+                .then(res => res.json())
+                .then(data => setThreads(Array.isArray(data) ? data : []));
+            }
+          }}
           {...chatProps}
         />
       )}
