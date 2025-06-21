@@ -53,8 +53,8 @@ function TaskList({ currentUser, search }) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Tasks</h2>
-      <ul className="space-y-4">
+      <h2 className="text-2xl font-bold mb-8 ml-2">All Projects</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
         {tasks
           .filter(task => {
             if (!search) return true;
@@ -66,38 +66,60 @@ function TaskList({ currentUser, search }) {
             );
           })
           .map(task => {
-          const acceptedIds = (task.acceptedHustlers || []).map(u => u.id);
-          const hasAccepted = currentUser && acceptedIds.includes(currentUser.id);
-          return (
-            <li key={task.id} className="bg-white p-4 rounded shadow">
-              {/* Poster info */}
-              {task.poster && (
-                <div className="flex items-center mb-2 cursor-pointer" onClick={() => handlePosterClick(task.poster.username)}>
-                  <img
-                    src={(task.poster.profilePicUrl && task.poster.profilePicUrl.startsWith('/')) ? `http://localhost:8080${task.poster.profilePicUrl}` : (task.poster.profilePicUrl || 'https://ui-avatars.com/api/?name=' + task.poster.username) }
-                    alt="poster"
-                    className="w-10 h-10 rounded-full mr-2"
-                  />
-                  <span className="text-sm text-gray-600 hover:underline">{task.poster.username}</span>
+            const acceptedIds = (task.acceptedHustlers || []).map(u => u.id);
+            const hasAccepted = currentUser && acceptedIds.includes(currentUser.id);
+            const date = task.createdAt ? new Date(task.createdAt) : null;
+            const formattedDate = date ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+            const imageUrl = task.imageUrl || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80';
+            return (
+              <li key={task.id} className="task-list_card group list-none w-full max-w-xs">
+                {/* Header: Date */}
+                <div className="flex items-center justify-between mb-2">
+                  <p className="task-list_date">{formattedDate}</p>
                 </div>
-              )}
-              <div className="cursor-pointer" onClick={() => navigate(`/tasks/${task.id}`, { state: { currentUser } })}>
-                <div className="font-semibold text-lg text-yellow-300">{task.title}</div>
-                <div className="text-gray-400 text-sm">Budget: {task.budget}</div>
-                <div className="text-blue-300 text-xs">Tags: {task.tags}</div>
-              </div>
-              {currentUser && currentUser.role === 'HUSTLER' && !hasAccepted && (
-                <button className="mt-2 bg-green-600 text-white px-3 py-1 rounded" onClick={() => handleAccept(task.id)} disabled={accepting === task.id}>
-                  {accepting === task.id ? 'Accepting...' : 'Accept'}
+                {/* Poster Info and Title */}
+                <div className="flex items-center gap-4 mt-2 mb-3">
+                  <img
+                    src={(task.poster && task.poster.profilePicUrl && task.poster.profilePicUrl.startsWith('/')) ? `http://localhost:8080${task.poster.profilePicUrl}` : (task.poster?.profilePicUrl || 'https://ui-avatars.com/api/?name=' + (task.poster?.username || 'U'))}
+                    alt={task.poster?.username || 'User'}
+                    className="rounded-full w-12 h-12 object-cover border border-gray-200 cursor-pointer hover:brightness-90 transition"
+                    onClick={() => handlePosterClick(task.poster?.username)}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-base font-medium truncate text-gray-800">{task.poster?.username || 'Unknown'}</p>
+                    <h3 className="text-xl font-bold text-[#101828] truncate mt-1">{task.title}</h3>
+                  </div>
+                </div>
+                {/* Description and Main Image */}
+                <div className="mb-3">
+                  <p className="task-list_desc">{task.description}</p>
+                  <img src={imageUrl} alt="task" className="task-list_img" />
+                </div>
+                {/* Category/Tags and Budget */}
+                <div className="flex items-center justify-between gap-3 mt-3">
+                  <span className="text-xs px-3 py-1 bg-gray-100 rounded-full text-gray-600 font-medium cursor-pointer hover:bg-gray-200 transition">{task.tags || 'General'}</span>
+                  <span className="text-xs px-3 py-1 bg-blue-100 rounded-full text-blue-700 font-semibold">₹{task.budget}</span>
+                </div>
+                {/* Details Button */}
+                <button
+                  className="task-list_btn mt-5 w-full"
+                  onClick={() => navigate(`/tasks/${task.id}`, { state: { currentUser } })}
+                >
+                  Details
                 </button>
-              )}
-              {currentUser && currentUser.role === 'HUSTLER' && hasAccepted && (
-                <div className="mt-2 text-green-700">You have accepted this task.</div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                {/* Accept Button (Hustler) */}
+                {currentUser && currentUser.role === 'HUSTLER' && !hasAccepted && (
+                  <button className="mt-2 bg-green-600 text-white px-3 py-1 rounded w-full" onClick={() => handleAccept(task.id)} disabled={accepting === task.id}>
+                    {accepting === task.id ? 'Accepting...' : 'Accept'}
+                  </button>
+                )}
+                {currentUser && currentUser.role === 'HUSTLER' && hasAccepted && (
+                  <div className="mt-2 text-green-700 text-center">You have accepted this task.</div>
+                )}
+              </li>
+            );
+          })}
+      </div>
     </div>
   );
 }
