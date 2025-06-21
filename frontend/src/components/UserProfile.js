@@ -97,109 +97,123 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
   if (loading || !profile) return <div className="p-4">Loading profile...</div>;
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded shadow p-6 mt-6">
-      <div className="flex items-center gap-4 mb-4">
+    <section className="profile_container">
+      {/* Left Profile Card */}
+      <div className="profile_card relative flex flex-col items-center justify-center bg-[#10172a] border-[5px] border-black rounded-[30px] shadow-2xl w-[300px] min-w-[260px] max-w-xs pb-8 pt-20 px-5 mx-auto">
+        {/* Name badge */}
+        <div className="profile_title absolute -top-8 left-1/2 -translate-x-1/2 px-6 py-2 bg-white border-[5px] border-black rounded-[20px] shadow-lg flex items-center justify-center w-11/12">
+          <span className="font-black text-lg uppercase text-center tracking-wide text-black">{profile.name || profile.username}</span>
+        </div>
+        {/* Profile image */}
         <img
           src={profilePicUrl ? `http://localhost:8080/${profilePicUrl.replace(/^\/uploads\//, '')}` : "https://ui-avatars.com/api/?name=" + profile.username}
           alt="Profile"
-          className="w-20 h-20 rounded-full object-cover border"
+          className="profile_image w-40 h-40 rounded-full object-cover border-[3px] border-black mt-8 shadow-md bg-white"
         />
-        <div>
-          <h2 className="text-2xl font-bold mb-1">{profile.username} <span className="text-sm text-gray-500">({profile.role})</span></h2>
-          {editMode ? (
-            <>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handlePicUpload}
-                className="block mb-1"
-              />
-              {uploading ? (
-                <span>Uploading...</span>
-              ) : (
-                uploadError && <span className="text-red-500 ml-2">{uploadError}</span>
-              )}
-              <textarea
-                className="border rounded px-2 py-1 w-full mb-2"
-                rows={2}
-                value={bio}
-                onChange={e => setBio(e.target.value)}
-                placeholder="Write something about yourself..."
-              />
+        {/* Handle */}
+        <p className="font-extrabold text-2xl text-white mt-6 mb-2 text-center">@{profile.username}</p>
+        {/* Bio and edit controls */}
+        <div className="w-full flex flex-col items-center">
+        {editMode ? (
+          <>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handlePicUpload}
+              className="mt-2"
+              disabled={uploading}
+            />
+            {uploadError && <div className="text-red-500 text-xs mt-1">{uploadError}</div>}
+            <textarea
+              className="border rounded px-2 py-1 w-full mb-2 mt-2"
+              rows={2}
+              value={bio}
+              onChange={e => setBio(e.target.value)}
+              placeholder="Write something about yourself..."
+            />
+            <div className="flex gap-2 w-full justify-center">
               <button
-                className="bg-green-600 text-white px-3 py-1 rounded mr-2"
+                className="bg-green-600 text-white px-3 py-1 rounded"
                 onClick={handleSave}
                 disabled={saving}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>
-              {saveError && <span className="text-red-500 ml-2">{saveError}</span>}
               <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => setEditMode(false)}>Cancel</button>
-            </>
-          ) : (
-            <>
-              <div className="text-gray-700 mb-1">{profile.bio || <span className="italic text-gray-400">No bio yet.</span>}</div>
-              {userId && (
-                <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm" onClick={() => setEditMode(true)}>Edit Profile</button>
-              )}
-            </>
-          )}
+            </div>
+            {saveError && <div className="text-red-500 text-xs mt-1">{saveError}</div>}
+          </>
+        ) : (
+          <>
+            <div className="text-white text-center mb-2 min-h-[32px]">{profile.bio || <span className="italic text-gray-300">No bio yet.</span>}</div>
+            {userId && (
+              <button className="bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition" onClick={() => setEditMode(true)}>Edit Profile</button>
+            )}
+          </>
+        )}
         </div>
       </div>
-      {profile.role === "HUSTLER" && ratings && (
-        <div className="mb-4">
-          <div className="font-semibold">Average Rating: <span className="text-yellow-500">{ratings.average.toFixed(2)}</span> / 5</div>
-          <div className="mt-1 text-xs text-gray-500">({ratings.ratings.length} reviews)</div>
-        </div>
-      )}
-      <div className="mb-4">
-        <div className="font-semibold mb-1">
-          {profile.role === "HUSTLER" ? "Completed Tasks" : "Posted Tasks"}
-        </div>
-        {tasks.length === 0 ? (
-          <div className="text-gray-400">No tasks found.</div>
-        ) : (
-          <ul className="list-disc ml-5">
-            {tasks.map(task => (
-              <li key={task.id} className="mb-1">
-                <span className="font-semibold">{task.title}</span>
-                <span className="ml-2 text-xs text-gray-500">({task.status})</span>
-                {task.poster && (
-                  <span className="ml-2 text-blue-600 underline cursor-pointer" onClick={() => {
-                    if(onUsernameClick) onUsernameClick(task.poster.username);
-                    else window.dispatchEvent(new CustomEvent('viewPublicProfile', { detail: { username: task.poster.username } }));
-                  }}>by {task.poster.username}</span>
-                )}
+      {/* Right: Projects/Tasks and Ratings */}
+      <div className="flex-1 flex flex-col gap-7 pl-2">
+        <h2 className="text-3xl font-black mb-4 mt-2 text-[#101828]">All Startups</h2>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-7 card_grid-sm">
+          {tasks.length === 0 ? (
+            <div className="text-gray-400">No tasks found.</div>
+          ) : (
+            tasks.map(task => (
+              <li key={task.id} className="task-list_card list-none border-4 border-[#10172a] shadow-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="task-list_date">{task.createdAt ? new Date(task.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}</p>
+                  {/* <span className="flex items-center gap-1 text-xs text-gray-400"><EyeIcon className="w-4 h-4" />{task.views}</span> */}
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="font-medium text-gray-800">{task.poster?.username || 'Unknown'}</span>
+                  {task.poster?.profilePicUrl && <img src={task.poster.profilePicUrl.startsWith('/') ? `http://localhost:8080${task.poster.profilePicUrl}` : task.poster.profilePicUrl} alt={task.poster.username} className="w-7 h-7 rounded-full border ml-1" />}
+                </div>
+                <h3 className="text-xl font-bold text-[#101828] truncate mt-1">{task.title}</h3>
+                <p className="task-list_desc">{task.description}</p>
+                <img src={task.imageUrl || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80'} alt="task" className="task-list_img" />
+                <div className="flex items-center justify-between gap-3 mt-3">
+                  <span className="text-xs px-3 py-1 bg-gray-100 rounded-full text-gray-600 font-medium cursor-pointer hover:bg-gray-200 transition">{task.tags || 'General'}</span>
+                  <span className="text-xs px-3 py-1 bg-blue-100 rounded-full text-blue-700 font-semibold">₹{task.budget}</span>
+                </div>
+                <button
+                  className="task-list_btn mt-5 w-full"
+                  onClick={() => window.location.href = `/tasks/${task.id}`}
+                >
+                  Details
+                </button>
               </li>
-            ))}
-          </ul>
+            ))
+          )}
+        </ul>
+        {/* Ratings/Reviews for Hustler */}
+        {profile.role === "HUSTLER" && ratings && ratings.ratings.length > 0 && (
+          <div className="mb-4">
+            <div className="font-semibold mb-1">Ratings & Reviews</div>
+            <ul className="border rounded divide-y">
+              {ratings.ratings.map(r => (
+                <li key={r.id} className="p-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-500">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                    <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  {r.comment && <div className="text-sm mt-1">{r.comment}</div>}
+                  <div className="text-xs text-gray-400 mt-1">
+                    From: <span className="text-blue-600 underline cursor-pointer" onClick={() => {
+                      if(onUsernameClick) onUsernameClick(r.poster.username);
+                      else window.dispatchEvent(new CustomEvent('viewPublicProfile', { detail: { username: r.poster.username } }));
+                    }}>{r.poster.username}</span> on task: <span className="text-blue-600 underline cursor-pointer" onClick={() => {
+                      if(onUsernameClick && r.task.poster) onUsernameClick(r.task.poster.username);
+                    }}>{r.task.title}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
-      {profile.role === "HUSTLER" && ratings && ratings.ratings.length > 0 && (
-        <div className="mb-4">
-          <div className="font-semibold mb-1">Ratings & Reviews</div>
-          <ul className="border rounded divide-y">
-            {ratings.ratings.map(r => (
-              <li key={r.id} className="p-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-yellow-500">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
-                  <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
-                </div>
-                {r.comment && <div className="text-sm mt-1">{r.comment}</div>}
-                <div className="text-xs text-gray-400 mt-1">
-                  From: <span className="text-blue-600 underline cursor-pointer" onClick={() => {
-                    if(onUsernameClick) onUsernameClick(r.poster.username);
-                    else window.dispatchEvent(new CustomEvent('viewPublicProfile', { detail: { username: r.poster.username } }));
-                  }}>{r.poster.username}</span> on task: <span className="text-blue-600 underline cursor-pointer" onClick={() => {
-                    if(onUsernameClick && r.task.poster) onUsernameClick(r.task.poster.username);
-                  }}>{r.task.title}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }
