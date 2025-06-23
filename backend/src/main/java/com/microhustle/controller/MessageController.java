@@ -110,6 +110,7 @@ public class MessageController {
         for (Message msg : messages) {
             if (msg.getTask() == null) continue;
             Task task = msg.getTask();
+            // DO NOT SKIP archived tasks -- allow all tasks
             if (task.getPoster() == null || !task.getPoster().getId().equals(userId)) continue;
             // Always get the hustler as the non-poster participant
             User sender = msg.getSender();

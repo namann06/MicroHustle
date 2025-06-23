@@ -56,6 +56,7 @@ function TaskList({ currentUser, search }) {
       <h2 className="text-2xl font-bold mb-8 ml-2">All Projects</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
         {tasks
+          .filter(task => task.status !== 'ARCHIVED') // Hide archived tasks
           .filter(task => {
             if (!search) return true;
             const s = search.toLowerCase();

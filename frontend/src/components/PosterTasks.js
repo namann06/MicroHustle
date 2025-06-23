@@ -46,6 +46,21 @@ function PosterTasks({ currentUser }) {
               <div className="font-semibold text-lg text-yellow-300">{task.title}</div>
               <div className="text-white">{task.description}</div>
               <div className="text-gray-400 text-sm">Budget: {task.budget} | Status: {task.status}</div>
+              {/* Archive button for posters (if not archived) */}
+              {task.status !== 'ARCHIVED' && (
+                <button
+                  className="mt-2 bg-red-600 text-white px-2 py-1 rounded"
+                  onClick={async () => {
+                    await fetch(`http://localhost:8080/api/tasks/${task.id}/archive?posterId=${currentUser.id}`, { method: 'POST' });
+                    // Refresh tasks
+                    fetch(`http://localhost:8080/api/tasks/poster/${currentUser.id}`)
+                      .then((res) => res.json())
+                      .then(setTasks);
+                  }}
+                >
+                  Archive
+                </button>
+              )}
               {task.acceptedHustlers && task.acceptedHustlers.length > 0 && (
                 <div className="mt-2 text-blue-400">
                   Accepted by:

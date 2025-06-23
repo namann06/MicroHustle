@@ -60,7 +60,25 @@ public class TaskController {
 
     @GetMapping
     public List<Task> getTasks() {
-        return taskRepository.findAll();
+        // Only return tasks that are not archived
+        return taskRepository.findAll().stream()
+            .filter(task -> task.getStatus() == null || !task.getStatus().equalsIgnoreCase("ARCHIVED"))
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    // Archive a task (Poster only)
+    @PostMapping("/{taskId}/archive")
+    public ResponseEntity<?> archiveTask(@PathVariable Long taskId, @RequestParam Long posterId) {
+        Task task = taskRepository.findById(taskId).orElse(null);
+        if (task == null) {
+            return ResponseEntity.badRequest().body("Task not found");
+        }
+        if (task.getPoster() == null || !task.getPoster().getId().equals(posterId)) {
+            return ResponseEntity.status(403).body("Not authorized");
+        }
+        task.setStatus("ARCHIVED");
+        taskRepository.save(task);
+        return ResponseEntity.ok("Task archived");
     }
 
     // Get a single task by id
