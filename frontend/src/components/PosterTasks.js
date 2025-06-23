@@ -35,40 +35,43 @@ function PosterTasks({ currentUser }) {
 
   if (!currentUser) return <div>Login required</div>;
   return (
-    <div className="w-full max-w-3xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-4 text-white">Tasks You Posted</h2>
-      {tasks.length === 0 ? (
-        <div className="text-gray-400">No tasks posted yet.</div>
-      ) : (
-        <ul className="space-y-4">
-          {tasks.map((task) => (
-            <li key={task.id} className="bg-[#1a2233] p-4 rounded shadow">
-              <div className="font-semibold text-lg text-yellow-300">{task.title}</div>
-              <div className="text-white">{task.description}</div>
-              <div className="text-gray-400 text-sm">Budget: {task.budget} | Status: {task.status}</div>
-              {/* Archive button for posters (if not archived) */}
-              {task.status !== 'ARCHIVED' && (
-                <button
-                  className="mt-2 bg-red-600 text-white px-2 py-1 rounded"
-                  onClick={async () => {
-                    await fetch(`http://localhost:8080/api/tasks/${task.id}/archive?posterId=${currentUser.id}`, { method: 'POST' });
-                    // Refresh tasks
-                    fetch(`http://localhost:8080/api/tasks/poster/${currentUser.id}`)
-                      .then((res) => res.json())
-                      .then(setTasks);
-                  }}
-                >
-                  Archive
-                </button>
-              )}
+    <div className="w-full max-w-6xl mx-auto mt-8">
+      <h2 className="text-3xl font-black mb-4 mt-2 text-[#101828]">Tasks You Posted</h2>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-7 card_grid-sm">
+        {tasks.length === 0 ? (
+          <div className="text-gray-400">No tasks posted yet.</div>
+        ) : (
+          tasks.map((task) => (
+            <li key={task.id} className="task-list_card list-none border-4 border-[#10172a] shadow-xl">
+              <div className="flex items-center justify-between mb-2">
+                <div className="font-semibold text-lg text-yellow-300 truncate max-w-[70%]">{task.title}</div>
+                <span className="text-xs px-2 py-1 rounded bg-[#232b3d] text-white ml-2">{task.status}</span>
+              </div>
+              <div className="text-white mb-2 min-h-[48px]">{task.description}</div>
+              <div className="flex items-center justify-between text-gray-400 text-sm mb-2">
+                <span>Budget: {task.budget} | Status: {task.status}</span>
+                {task.status !== 'ARCHIVED' && (
+                  <button
+                    className="bg-red-600 text-white px-2 py-1 rounded text-xs ml-2"
+                    onClick={async () => {
+                      await fetch(`http://localhost:8080/api/tasks/${task.id}/archive?posterId=${currentUser.id}`, { method: 'POST' });
+                      fetch(`http://localhost:8080/api/tasks/poster/${currentUser.id}`)
+                        .then((res) => res.json())
+                        .then(setTasks);
+                    }}
+                  >
+                    Archive
+                  </button>
+                )}
+              </div>
               {task.acceptedHustlers && task.acceptedHustlers.length > 0 && (
                 <div className="mt-2 text-blue-400">
                   Accepted by:
                   <ul className="ml-2">
-                    {task.acceptedHustlers.map(hustler => (
+                    {task.acceptedHustlers.map((hustler) => (
                       <li key={hustler.id} className="flex items-center gap-2">
                         <span>{hustler.username}</span>
-                        {task.completedHustlers && task.completedHustlers.find && task.completedHustlers.find(u => u.id === hustler.id) ? (
+                        {task.completedHustlers && task.completedHustlers.find && task.completedHustlers.find((u) => u.id === hustler.id) ? (
                           <span className="text-green-400 ml-2">Done</span>
                         ) : (
                           <button className="ml-2 bg-green-600 text-white px-2 py-1 rounded" onClick={() => openModal(task, hustler)}>
@@ -81,9 +84,9 @@ function PosterTasks({ currentUser }) {
                 </div>
               )}
             </li>
-          ))}
-        </ul>
-      )}
+          ))
+        )}
+      </ul>
       <RatingModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

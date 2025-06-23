@@ -156,7 +156,7 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
       </div>
       {/* Right: Projects/Tasks and Ratings */}
       <div className="flex-1 flex flex-col gap-7 pl-2">
-        <h2 className="text-3xl font-black mb-4 mt-2 text-[#101828]">All Startups</h2>
+        <h2 className="text-3xl font-black mb-4 mt-2 text-[#101828]">All Tasks</h2>
         <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-7 card_grid-sm">
           {tasks.length === 0 ? (
             <div className="text-gray-400">No tasks found.</div>
