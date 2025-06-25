@@ -26,45 +26,46 @@ function TaskDetails({ taskId, onBack, currentUser }) {
   if (!task) return <div className="text-white">Task not found.</div>;
 
   return (
-    <div className="max-w-xl mx-auto bg-[#1a2233] p-6 rounded mt-8 shadow">
+    <div className="max-w-2xl mx-auto mt-10">
       <button className="mb-4 text-blue-400" onClick={onBack}>← Back</button>
-      <h2 className="text-3xl font-bold text-yellow-300 mb-2">{task.title}</h2>
-      <div className="text-gray-400 mb-2">Budget: {task.budget}</div>
-      <div className="text-gray-400 mb-2">Tags: {task.tags}</div>
-      <div className="text-white mb-2">{task.description}</div>
-      <div className="text-gray-400 mb-2">Deadline: {task.deadline}</div>
-      <div className="text-gray-400 mb-2">Status: {task.status}</div>
-      {currentUser && task.poster && currentUser.id === task.poster.id && task.acceptedHustlers && task.acceptedHustlers.length > 0 && (
-        <div className="text-blue-400 mt-2">
-          Accepted by:
-          {task.acceptedHustlers.map(u => (
-            <span key={u.id} className="ml-2">
-              {u.username}
-              <button
-                className="ml-2 bg-blue-600 text-white px-2 py-0.5 rounded text-xs"
-                onClick={() => {
-                  setChatProps({
-                    currentUser,
-                    otherUser: { id: u.id, username: u.username },
-                    task: { id: task.id, title: task.title }
-                  });
-                  setChatOpen(true);
-                }}
-              >Message</button>
-            </span>
-          ))}
+      {/* Header Card */}
+      <div className="bg-white rounded-xl shadow-lg flex items-center justify-between p-6 mb-8">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => window.location.href = `/profile/${task.poster?.username}`}
+            className="focus:outline-none"
+            style={{ borderRadius: '9999px' }}
+            title={task.poster?.username || ''}
+          >
+            <div className="w-16 h-16 rounded-full bg-gray-200 border-4 border-[#e5e7eb] flex items-center justify-center overflow-hidden">
+              {task.poster && task.poster.profilePicUrl ? (
+                <img src={task.poster.profilePicUrl} alt="avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl font-bold text-gray-400">{task.poster && task.poster.username ? task.poster.username[0].toUpperCase() : '?'}</span>
+              )}
+            </div>
+          </button>
+          <div>
+            <div className="font-bold text-lg text-[#101828]">{task.poster ? task.poster.username : 'Unknown'}</div>
+            <div className="text-gray-400 text-sm">@{task.poster ? task.poster.username : 'unknown'}</div>
+          </div>
         </div>
-      )}
-      {chatOpen && chatProps && (
-        <ChatModal
-          open={chatOpen}
-          onClose={() => setChatOpen(false)}
-          {...chatProps}
-        />
-      )}
-      {task.poster && (
-        <div className="text-gray-400 mt-2">Posted by: {task.poster.username}</div>
-      )}
+        <div className="flex flex-col items-end gap-2">
+          <span className="px-3 py-1 rounded-full bg-[#f3f4f6] text-gray-700 font-semibold text-xs mb-1">{task.tags || 'No Tag'}</span>
+        </div>
+      </div>
+      {/* Project Details Card */}
+      <div className="bg-white rounded-xl shadow p-8">
+        <h2 className="text-2xl font-extrabold text-[#101828] mb-6">Project Details</h2>
+        <div className="mb-6 text-gray-800 text-base">
+          {task.description || 'No description provided.'}
+        </div>
+        <div className="flex flex-wrap gap-4 mt-6">
+          <span className="bg-[#f3f4f6] text-gray-700 rounded-full px-3 py-1 text-xs font-semibold">Budget: {task.budget}</span>
+          <span className="bg-[#f3f4f6] text-gray-700 rounded-full px-3 py-1 text-xs font-semibold">Deadline: {task.deadline || 'N/A'}</span>
+          <span className="bg-[#f3f4f6] text-gray-700 rounded-full px-3 py-1 text-xs font-semibold">Status: {task.status}</span>
+        </div>
+      </div>
     </div>
   );
 }
