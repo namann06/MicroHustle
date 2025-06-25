@@ -28,7 +28,7 @@ function TaskDetails({ taskId, onBack, currentUser }) {
 
   return (
     <div className="task-details-root">
-      <button className="mb-4 text-blue-400" onClick={onBack}>← Back</button>
+        <button className="mb-4 text-blue-400" onClick={onBack}>← Back</button>
       {/* Header Card */}
       <div className="task-details-header">
         <div className="flex items-center gap-4">
@@ -40,9 +40,9 @@ function TaskDetails({ taskId, onBack, currentUser }) {
           >
             <div className="task-details-avatar">
               {task.poster && task.poster.profilePicUrl ? (
-                <img src={task.poster.profilePicUrl} alt="avatar" className="w-full h-full object-cover" />
+                <img src={task.poster.profilePicUrl} alt="avatar" className="w-full h-full object-cover" onError={e => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }} />
               ) : (
-                <span className="text-3xl font-bold text-gray-400">{task.poster && task.poster.username ? task.poster.username[0].toUpperCase() : '?'}</span>
+                <img src={'/default-avatar.png'} alt="avatar" className="w-full h-full object-cover" />
               )}
             </div>
           </button>

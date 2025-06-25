@@ -1,5 +1,9 @@
 /* Task Details Page Custom Classes using Tailwind @apply */
 
+.task-details-root {
+  @apply max-w-2xl mx-auto mt-10;
+}
+
 .task-details-header {
   @apply bg-white rounded-xl shadow-lg flex items-center justify-between p-6 mb-8;
 }
