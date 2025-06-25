@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChatModal from './ChatModal';
+import '../styles/task-details.css';
 
 function TaskDetails({ taskId, onBack, currentUser }) {
   const [task, setTask] = useState(null);
@@ -26,10 +27,10 @@ function TaskDetails({ taskId, onBack, currentUser }) {
   if (!task) return <div className="text-white">Task not found.</div>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10">
+    <div className="task-details-root">
       <button className="mb-4 text-blue-400" onClick={onBack}>← Back</button>
       {/* Header Card */}
-      <div className="bg-white rounded-xl shadow-lg flex items-center justify-between p-6 mb-8">
+      <div className="task-details-header">
         <div className="flex items-center gap-4">
           <button
             onClick={() => window.location.href = `/profile/${task.poster?.username}`}
@@ -37,7 +38,7 @@ function TaskDetails({ taskId, onBack, currentUser }) {
             style={{ borderRadius: '9999px' }}
             title={task.poster?.username || ''}
           >
-            <div className="w-16 h-16 rounded-full bg-gray-200 border-4 border-[#e5e7eb] flex items-center justify-center overflow-hidden">
+            <div className="task-details-avatar">
               {task.poster && task.poster.profilePicUrl ? (
                 <img src={task.poster.profilePicUrl} alt="avatar" className="w-full h-full object-cover" />
               ) : (
@@ -46,24 +47,24 @@ function TaskDetails({ taskId, onBack, currentUser }) {
             </div>
           </button>
           <div>
-            <div className="font-bold text-lg text-[#101828]">{task.poster ? task.poster.username : 'Unknown'}</div>
-            <div className="text-gray-400 text-sm">@{task.poster ? task.poster.username : 'unknown'}</div>
+            <div className="task-details-username">{task.poster ? task.poster.username : 'Unknown'}</div>
+            <div className="task-details-handle">@{task.poster ? task.poster.username : 'unknown'}</div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <span className="px-3 py-1 rounded-full bg-[#f3f4f6] text-gray-700 font-semibold text-xs mb-1">{task.tags || 'No Tag'}</span>
+        <div className="task-details-header-tags">
+          <span className="task-details-tag">{task.tags || 'No Tag'}</span>
         </div>
       </div>
       {/* Project Details Card */}
-      <div className="bg-white rounded-xl shadow p-8">
-        <h2 className="text-2xl font-extrabold text-[#101828] mb-6">Project Details</h2>
-        <div className="mb-6 text-gray-800 text-base">
+      <div className="task-details-card">
+        <h2 className="task-details-title">Project Details</h2>
+        <div className="task-details-description">
           {task.description || 'No description provided.'}
         </div>
-        <div className="flex flex-wrap gap-4 mt-6">
-          <span className="bg-[#f3f4f6] text-gray-700 rounded-full px-3 py-1 text-xs font-semibold">Budget: {task.budget}</span>
-          <span className="bg-[#f3f4f6] text-gray-700 rounded-full px-3 py-1 text-xs font-semibold">Deadline: {task.deadline || 'N/A'}</span>
-          <span className="bg-[#f3f4f6] text-gray-700 rounded-full px-3 py-1 text-xs font-semibold">Status: {task.status}</span>
+        <div className="task-details-badges">
+          <span className="task-details-badge">Budget: {task.budget}</span>
+          <span className="task-details-badge">Deadline: {task.deadline || 'N/A'}</span>
+          <span className="task-details-badge">Status: {task.status}</span>
         </div>
       </div>
     </div>
