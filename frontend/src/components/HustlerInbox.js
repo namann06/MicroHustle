@@ -36,29 +36,28 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
   if (!currentUser || currentUser.role !== 'HUSTLER') return <div className="text-white">Login as a hustler to see your inbox.</div>;
 
   return (
-    <div className="inbox-container flex">
-      <div className="inbox-list w-1/3 bg-[#1a2233] p-6 rounded mt-8 shadow">
-        <h2 className="text-2xl font-bold text-blue-300 mb-4">Inbox</h2>
+    <div className="inbox-container flex min-h-screen">
+      <div className="inbox-list w-1/3 bg-[#1a2233] p-4 shadow-md overflow-y-auto">
+        <h2 className="text-xl font-bold text-blue-300 mb-2">Chats</h2>
         {(!Array.isArray(threads) || threads.length === 0) ? (
           <div className="text-gray-400">No messages yet.</div>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-2">
             {threads.map(thread => (
-              <li key={thread.taskId + '-' + thread.posterId} className="bg-[#232b3d] p-4 rounded flex flex-col gap-2">
-                <div className="font-semibold text-lg text-blue-300">
-                  Task: {thread.taskTitle}
+              <li key={thread.taskId + '-' + thread.posterId} className="bg-[#232b3d] p-3 rounded flex flex-col gap-1 cursor-pointer hover:bg-[#2a3447]" onClick={() => openChat(thread)}>
+                <div className="font-semibold text-base text-blue-300">
+                  {thread.taskTitle}
                 </div>
-                <div className="text-white mb-2">
+                <div className="text-white">
                   From: {thread.posterUsername}
                 </div>
-                <div className="text-gray-400 text-sm">Unread: {thread.unreadCount}</div>
-                <button className="bg-blue-600 text-white px-3 py-1 rounded self-start" onClick={() => openChat(thread)}>Open Chat</button>
+                <div className="text-gray-400 text-xs">Unread: {thread.unreadCount}</div>
               </li>
             ))}
           </ul>
         )}
       </div>
-      <div className="chat-pane w-2/3">
+      <div className="chat-pane w-2/3 bg-white shadow-md">
         {chatOpen && chatProps ? (
           <ChatModal
             open={chatOpen}
@@ -83,7 +82,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
             {...chatProps}
           />
         ) : (
-          <div className="text-white p-6">Select a chat to view messages</div>
+          <div className="text-center text-gray-500 p-6">Select a chat to view messages</div>
         )}
       </div>
     </div>

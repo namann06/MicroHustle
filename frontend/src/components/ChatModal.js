@@ -10,15 +10,14 @@ function isImage(filename) {
 function getFileTypeLabel(filename) {
   const ext = filename.split('.').pop().toLowerCase();
   if (["pdf"].includes(ext)) return "View PDF";
-  if (["doc","docx"].includes(ext)) return "View Word Document";
-  if (["xls","xlsx"].includes(ext)) return "View Excel Spreadsheet";
-  if (["ppt","pptx"].includes(ext)) return "View PowerPoint";
+  if (["doc", "docx"].includes(ext)) return "View Word Document";
+  if (["xls", "xlsx"].includes(ext)) return "View Excel Spreadsheet";
+  if (["ppt", "pptx"].includes(ext)) return "View PowerPoint";
   return "Download Attachment";
 }
 
 function renderMessageContent(content) {
   if (!content) return null;
-  // Regex to match URLs in text
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = content.split(urlRegex);
   return parts.map((part, i) =>
@@ -46,7 +45,6 @@ export default function ChatModal({
       .then(res => res.json())
       .then(setMessages);
 
-    // Setup STOMP client for real-time chat
     const minId = Math.min(currentUser.id, otherUser.id);
     const maxId = Math.max(currentUser.id, otherUser.id);
     const topic = `/topic/chat/${task.id}-${minId}-${maxId}`;
@@ -62,7 +60,6 @@ export default function ChatModal({
       stompClient.subscribe(topic, (message) => {
         const msg = JSON.parse(message.body);
         setMessages(m => {
-          // Mark as read if recipient is current user and not already read
           if (msg.recipient.id === currentUser.id && !msg.read) {
             fetch(`http://localhost:8080/api/messages/${msg.id}/read`, { method: 'POST' });
           }
@@ -86,7 +83,6 @@ export default function ChatModal({
     };
   }, [open, currentUser, otherUser, task]);
 
-  // Auto-scroll to latest message
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -97,7 +93,6 @@ export default function ChatModal({
     if (!input && !attachment) return;
     let attachmentUrl = null;
     if (attachment) {
-      // Upload the file to backend
       const formData = new FormData();
       formData.append('file', attachment);
       try {
@@ -118,6 +113,7 @@ export default function ChatModal({
         return;
       }
     }
+
     const res = await fetch(`http://localhost:8080/api/messages/send?senderId=${currentUser.id}&recipientId=${otherUser.id}&taskId=${task.id}&content=${encodeURIComponent(input)}${attachmentUrl ? `&attachmentUrl=${encodeURIComponent(attachmentUrl)}` : ''}`,
       { method: 'POST' });
     if (res.ok) {
@@ -130,74 +126,72 @@ export default function ChatModal({
   if (!open) return null;
 
   return (
-    <div className="chat-modal-overlay">
-      <div className="chat-modal-card">
-        {showHeader && (
-          <div className="chat-modal-header">
-            <button className="chat-modal-back-btn" onClick={onClose}>←</button>
-            <img
-              src={otherUser.profilePicUrl || 'https://via.placeholder.com/150'}
-              alt={otherUser.username}
-              className="chat-modal-avatar"
-            />
-            <div className="chat-modal-user-info">
-              <div className="chat-modal-title">{otherUser.username}</div>
+    <div className="chat-modal-card">
+      {showHeader && (
+        <div className="chat-modal-header">
+          <button className="chat-modal-back-btn" onClick={onClose}>←</button>
+          <img
+            src={otherUser.profilePicUrl || 'https://via.placeholder.com/150'}
+            alt={otherUser.username}
+            className="chat-modal-avatar"
+          />
+          <div className="chat-modal-user-info">
+            <div className="chat-modal-title">{otherUser.username}</div>
+          </div>
+        </div>
+      )}
+      <div className="chat-modal-messages">
+        {messages.map(msg => (
+          <div key={msg.id} className={`chat-modal-message ${msg.sender.id === currentUser.id ? 'outgoing' : 'incoming'}`}>
+            <div className={`chat-modal-bubble ${msg.sender.id === currentUser.id ? 'outgoing' : 'incoming'}`}>
+              {renderMessageContent(msg.content)}
+              {msg.attachmentUrl && (
+                isImage(msg.attachmentUrl) ? (
+                  <a href={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`} target="_blank" rel="noopener noreferrer" className="block mt-2">
+                    <img
+                      src={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`}
+                      alt="attachment"
+                      className="max-h-40 rounded-lg border"
+                    />
+                  </a>
+                ) : (
+                  <a className="block text-sm underline mt-2" href={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`} target="_blank" rel="noopener noreferrer">
+                    {getFileTypeLabel(msg.attachmentUrl)}
+                  </a>
+                )
+              )}
+            </div>
+            <div className="chat-modal-time">
+              {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {msg.sender.id === currentUser.id && (msg.read ? ' ✓✓' : ' ✓')}
             </div>
           </div>
-        )}
-        <div className="chat-modal-messages">
-          {messages.map(msg => (
-            <div key={msg.id} className={`chat-modal-message ${msg.sender.id === currentUser.id ? 'outgoing' : 'incoming'}`}>
-              <div className={`chat-modal-bubble ${msg.sender.id === currentUser.id ? 'outgoing' : 'incoming'}`}>
-                {renderMessageContent(msg.content)}
-                {msg.attachmentUrl && (
-                  isImage(msg.attachmentUrl) ? (
-                    <a href={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`} target="_blank" rel="noopener noreferrer" className="block mt-2">
-                      <img
-                        src={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`}
-                        alt="attachment"
-                        className="max-h-40 rounded-lg border"
-                      />
-                    </a>
-                  ) : (
-                    <a className="block text-sm underline mt-2" href={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`} target="_blank" rel="noopener noreferrer">
-                      {getFileTypeLabel(msg.attachmentUrl)}
-                    </a>
-                  )
-                )}
-              </div>
-              <div className="chat-modal-time">
-                {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                {msg.sender.id === currentUser.id && (msg.read ? ' ✓✓' : ' ✓')}
-              </div>
-            </div>
-          ))}
-          {otherTyping && <div className="text-xs text-gray-500 italic p-2">{otherUser.username} is typing...</div>}
-          <div ref={messagesEndRef} />
-        </div>
-        <div className="chat-modal-input-row">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={e => setAttachment(e.target.files[0])}
-            style={{ display: 'none' }}
-            id="file-input"
-          />
-          <button className="chat-modal-icon-btn" onClick={() => fileInputRef.current.click()}>
-            📎
-          </button>
-          <input
-            type="text"
-            className="chat-modal-input"
-            placeholder="Type here..."
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-          />
-          <button className="chat-modal-icon-btn" onClick={sendMessage}>
-            ➤
-          </button>
-        </div>
+        ))}
+        {otherTyping && <div className="text-xs text-gray-500 italic p-2">{otherUser.username} is typing...</div>}
+        <div ref={messagesEndRef} />
+      </div>
+      <div className="chat-modal-input-row">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={e => setAttachment(e.target.files[0])}
+          style={{ display: 'none' }}
+          id="file-input"
+        />
+        <button className="chat-modal-icon-btn" onClick={() => fileInputRef.current.click()}>
+          📎
+        </button>
+        <input
+          type="text"
+          className="chat-modal-input"
+          placeholder="Type here..."
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
+        />
+        <button className="chat-modal-icon-btn" onClick={sendMessage}>
+          ➤
+        </button>
       </div>
     </div>
   );

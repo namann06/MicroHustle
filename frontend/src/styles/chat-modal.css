@@ -1,13 +1,3 @@
-.chat-modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
 .chat-modal-card {
   background-color: #ffffff;
   border-radius: 1.5rem;
@@ -67,7 +57,7 @@
 }
 
 .chat-modal-messages {
-  flex: 1;
+  flex-grow: 1;
   overflow-y: auto;
   padding: 1rem;
   display: flex;
