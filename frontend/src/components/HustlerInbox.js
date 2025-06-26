@@ -36,51 +36,56 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
   if (!currentUser || currentUser.role !== 'HUSTLER') return <div className="text-white">Login as a hustler to see your inbox.</div>;
 
   return (
-    <div className="max-w-xl mx-auto bg-[#1a2233] p-6 rounded mt-8 shadow">
-      <h2 className="text-2xl font-bold text-blue-300 mb-4">Inbox</h2>
-      {(!Array.isArray(threads) || threads.length === 0) ? (
-        <div className="text-gray-400">No messages yet.</div>
-      ) : (
-        <ul className="space-y-4">
-          {threads.map(thread => (
-            <li key={thread.taskId + '-' + thread.posterId} className="bg-[#232b3d] p-4 rounded flex flex-col gap-2">
-              <div className="font-semibold text-lg text-blue-300">
-                Task: {thread.taskTitle}
-              </div>
-              <div className="text-white mb-2">
-                From: {thread.posterUsername}
-              </div>
-              <div className="text-gray-400 text-sm">Unread: {thread.unreadCount}</div>
-              <button className="bg-blue-600 text-white px-3 py-1 rounded self-start" onClick={() => openChat(thread)}>Open Chat</button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {chatOpen && chatProps && (
-        <ChatModal
-          open={chatOpen}
-          onClose={async () => {
-            setChatOpen(false);
-            // Await mark as read before refreshing threads
-            if (currentUser && chatProps) {
-              await markThreadReadHustler(
-                chatProps.task.id,
-                chatProps.otherUser.id, // posterId
-                currentUser.id           // hustlerId
-              );
-              fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`)
-                .then(res => res.json())
-                .then(data => {
-                  setThreads(Array.isArray(data) ? data : []);
-                  if (typeof onInboxRead === 'function') onInboxRead();
-                });
-            } else {
-              if (typeof onInboxRead === 'function') onInboxRead();
-            }
-          }}
-          {...chatProps}
-        />
-      )}
+    <div className="inbox-container flex">
+      <div className="inbox-list w-1/3 bg-[#1a2233] p-6 rounded mt-8 shadow">
+        <h2 className="text-2xl font-bold text-blue-300 mb-4">Inbox</h2>
+        {(!Array.isArray(threads) || threads.length === 0) ? (
+          <div className="text-gray-400">No messages yet.</div>
+        ) : (
+          <ul className="space-y-4">
+            {threads.map(thread => (
+              <li key={thread.taskId + '-' + thread.posterId} className="bg-[#232b3d] p-4 rounded flex flex-col gap-2">
+                <div className="font-semibold text-lg text-blue-300">
+                  Task: {thread.taskTitle}
+                </div>
+                <div className="text-white mb-2">
+                  From: {thread.posterUsername}
+                </div>
+                <div className="text-gray-400 text-sm">Unread: {thread.unreadCount}</div>
+                <button className="bg-blue-600 text-white px-3 py-1 rounded self-start" onClick={() => openChat(thread)}>Open Chat</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="chat-pane w-2/3">
+        {chatOpen && chatProps ? (
+          <ChatModal
+            open={chatOpen}
+            onClose={async () => {
+              setChatOpen(false);
+              if (currentUser && chatProps) {
+                await markThreadReadHustler(
+                  chatProps.task.id,
+                  chatProps.otherUser.id,
+                  currentUser.id
+                );
+                fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    setThreads(Array.isArray(data) ? data : []);
+                    if (typeof onInboxRead === 'function') onInboxRead();
+                  });
+              } else {
+                if (typeof onInboxRead === 'function') onInboxRead();
+              }
+            }}
+            {...chatProps}
+          />
+        ) : (
+          <div className="text-white p-6">Select a chat to view messages</div>
+        )}
+      </div>
     </div>
   );
 }
