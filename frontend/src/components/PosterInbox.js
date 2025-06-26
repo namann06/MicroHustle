@@ -36,46 +36,50 @@ export default function PosterInbox({ currentUser, onInboxRead }) {
   if (!currentUser || currentUser.role !== 'POSTER') return <div className="text-white">Login as a poster to see your inbox.</div>;
 
   return (
-    <div className="max-w-xl mx-auto bg-[#1a2233] p-6 rounded mt-8 shadow">
-      <h2 className="text-2xl font-bold text-yellow-300 mb-4">Inbox</h2>
-      {(!Array.isArray(threads) || threads.length === 0) ? (
-        <div className="text-gray-400">No messages yet.</div>
-      ) : (
-        <ul className="space-y-4">
-          {threads.map(thread => (
-            <li key={thread.taskId + '-' + thread.hustlerId} className="bg-[#232b3d] p-4 rounded flex flex-col gap-2">
-              <div className="font-semibold text-lg text-yellow-300">
-                Task: {thread.taskTitle}
-              </div>
-              <div className="text-white mb-2">
-                With: {thread.hustlerUsername}
-              </div>
-              <div className="text-gray-400 text-sm">Unread: {thread.unreadCount}</div>
-              <button className="bg-blue-600 text-white px-3 py-1 rounded self-start" onClick={() => openChat(thread)}>Open Chat</button>
-            </li>
-          ))}
-        </ul>
-      )}
-      {chatOpen && chatProps && (
-        <ChatModal
-          open={chatOpen}
-          onClose={() => {
-            setChatOpen(false);
-            // Refresh threads to update unread counts
-            if (currentUser) {
-              fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
-                .then(res => res.json())
-                .then(data => {
-                  setThreads(Array.isArray(data) ? data : []);
-                  if (typeof onInboxRead === 'function') onInboxRead();
-                });
-            } else {
-              if (typeof onInboxRead === 'function') onInboxRead();
-            }
-          }}
-          {...chatProps}
-        />
-      )}
+    <div className="inbox-container flex min-h-screen">
+      <div className="inbox-list w-1/3 bg-[#1a2233] p-4 shadow-md overflow-y-auto">
+        <h2 className="text-xl font-bold text-yellow-300 mb-2">Chats</h2>
+        {(!Array.isArray(threads) || threads.length === 0) ? (
+          <div className="text-gray-400">No messages yet.</div>
+        ) : (
+          <ul className="space-y-2">
+            {threads.map(thread => (
+              <li key={thread.taskId + '-' + thread.hustlerId} className="bg-[#232b3d] p-3 rounded flex flex-col gap-1 cursor-pointer hover:bg-[#2a3447]" onClick={() => openChat(thread)}>
+                <div className="font-semibold text-base text-yellow-300">
+                  {thread.taskTitle}
+                </div>
+                <div className="text-white">
+                  With: {thread.hustlerUsername}
+                </div>
+                <div className="text-gray-400 text-xs">Unread: {thread.unreadCount}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div className="chat-pane w-2/3 bg-white shadow-md">
+        {chatOpen && chatProps ? (
+          <ChatModal
+            open={chatOpen}
+            onClose={() => {
+              setChatOpen(false);
+              if (currentUser) {
+                fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    setThreads(Array.isArray(data) ? data : []);
+                    if (typeof onInboxRead === 'function') onInboxRead();
+                  });
+              } else {
+                if (typeof onInboxRead === 'function') onInboxRead();
+              }
+            }}
+            {...chatProps}
+          />
+        ) : (
+          <div className="text-center text-gray-500 p-6">Select a chat to view messages</div>
+        )}
+      </div>
     </div>
   );
 }
