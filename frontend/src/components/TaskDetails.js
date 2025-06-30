@@ -39,11 +39,20 @@ function TaskDetails({ taskId, onBack, currentUser }) {
             title={task.poster?.username || ''}
           >
             <div className="task-details-avatar">
-              {task.poster && task.poster.profilePicUrl ? (
-                <img src={task.poster.profilePicUrl} alt="avatar" className="w-full h-full object-cover" onError={e => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }} />
-              ) : (
-                <img src={'/default-avatar.png'} alt="avatar" className="w-full h-full object-cover" />
-              )}
+              <img 
+                src={task.poster?.profilePicUrl 
+                  ? task.poster.profilePicUrl.startsWith('http') 
+                    ? task.poster.profilePicUrl 
+                    : `http://localhost:8080${task.poster.profilePicUrl.startsWith('/') ? '' : '/'}${task.poster.profilePicUrl}`
+                  : `https://ui-avatars.com/api/?name=${task.poster?.username || 'U'}&background=random`
+                } 
+                alt="avatar" 
+                className="w-full h-full object-cover" 
+                onError={e => { 
+                  e.target.onerror = null; 
+                  e.target.src = `https://ui-avatars.com/api/?name=${task.poster?.username || 'U'}&background=random`; 
+                }} 
+              />
             </div>
           </button>
           <div>

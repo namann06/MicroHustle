@@ -32,7 +32,19 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
   };
 
   const imageUrl = task.imageUrl || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80';
-  const profilePicUrl = task.poster?.profilePicUrl || `https://ui-avatars.com/api/?name=${task.poster?.username || 'U'}`;
+  // Ensure profilePicUrl is properly constructed with the base URL if it's a relative path
+  const getProfilePicUrl = () => {
+    if (!task.poster?.profilePicUrl) {
+      return `https://ui-avatars.com/api/?name=${task.poster?.username || 'U'}&background=random`;
+    }
+    // If it's already a full URL, use it as is
+    if (task.poster.profilePicUrl.startsWith('http')) {
+      return task.poster.profilePicUrl;
+    }
+    // Otherwise, assume it's a path relative to the API base URL
+    return `http://localhost:8080${task.poster.profilePicUrl.startsWith('/') ? '' : '/'}${task.poster.profilePicUrl}`;
+  };
+  const profilePicUrl = getProfilePicUrl();
   const formattedDate = task.createdAt ? new Date(task.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -104,6 +116,10 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
                 src={profilePicUrl}
                 alt={task.poster?.username || 'User'}
                 className="rounded-full w-8 h-8 object-cover border-2 border-white"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = `https://ui-avatars.com/api/?name=${task.poster?.username || 'U'}&background=random`;
+                }}
               />
               <div className="overflow-hidden">
                 <p className="text-xs text-gray-400 truncate">Posted by</p>
