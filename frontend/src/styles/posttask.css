@@ -1,0 +1,45 @@
+/* PostTask Form Custom Styles using Tailwind's @apply */
+
+.posttask-container {
+  @apply flex justify-center items-center min-h-[60vh] bg-gradient-to-br from-blue-50 via-white to-indigo-100;
+}
+
+.posttask-form {
+  @apply w-full max-w-2xl bg-white shadow-xl rounded-2xl px-16 py-8 space-y-6 border border-gray-200;
+}
+
+.posttask-title {
+  @apply text-3xl font-extrabold mb-8 text-center text-indigo-800 tracking-tight;
+}
+
+.posttask-success {
+  @apply text-green-600 text-center mb-4 font-medium;
+}
+
+.posttask-label {
+  @apply block text-sm font-semibold text-gray-700 mb-2;
+}
+
+.posttask-input {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition;
+}
+
+.posttask-textarea {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition min-h-[100px];
+}
+
+.posttask-btn {
+  @apply w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow;
+}
+
+.posttask-formitem {
+  @apply mb-6;
+}
+
+.posttask-formdesc {
+  @apply text-xs text-gray-400 mb-1;
+}
+
+.posttask-formmsg {
+  @apply text-xs text-red-500 mt-1;
+}
