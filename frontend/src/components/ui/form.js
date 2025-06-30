@@ -2,12 +2,16 @@ import * as React from "react"
 import { useFormContext, FormProvider } from "react-hook-form"
 
 export function Form({ children, ...props }) {
+  // Only pass DOM props to <form>
+  const { action, method, onSubmit, className, style, ...rest } = props;
   const methods = useFormContext?.() || {};
   return (
     <FormProvider {...methods}>
-      <form {...props}>{children}</form>
+      <form action={action} method={method} onSubmit={onSubmit} className={className} style={style}>
+        {children}
+      </form>
     </FormProvider>
-  )
+  );
 }
 
 export function FormField({ name, control, render }) {

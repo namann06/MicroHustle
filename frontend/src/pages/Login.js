@@ -45,10 +45,9 @@ function Login({ setCurrentUser }) {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md bg-white shadow-xl rounded-2xl px-10 py-8 space-y-6 border border-gray-200">
-          <h2 className="text-2xl font-bold mb-6 text-center text-indigo-800">Login</h2>
-          {error && <div className="text-red-600 text-center mb-2">{error}</div>}
+      <Form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-sm p-6 sm:p-8 bg-white rounded-2xl shadow-2xl border border-gray-200 space-y-6">
+          <h2 className="text-3xl font-extrabold mb-8 text-center text-indigo-800 tracking-tight">Login</h2>
+          {error && <div className="text-red-600 text-center mb-4 font-medium">{error}</div>}
           <FormField
             control={form.control}
             name="username"
@@ -76,7 +75,6 @@ function Login({ setCurrentUser }) {
             )}
           />
           <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow" type="submit">Login</Button>
-        </form>
       </Form>
     </div>
   );
