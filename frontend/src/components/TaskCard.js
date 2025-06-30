@@ -17,7 +17,18 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
 
   const handlePosterClick = (e) => {
     e.stopPropagation();
-    onPosterClick(task.posterId);
+    if (task.poster?.username) {
+      onPosterClick(task.poster.username);
+    }
+  };
+
+  const handleCardClick = (e) => {
+    // Prevent event bubbling to parent elements
+    e.stopPropagation();
+    // Update URL using history API with the correct path format
+    window.history.pushState({}, '', `/tasks/${task.id}`);
+    // Force a re-render by updating the page state
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   const imageUrl = task.imageUrl || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80';
@@ -29,8 +40,8 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
   }) : '';
 
   return (
-    <div className="w-full h-full">
-      <CardContainer className="w-full h-full">
+    <div className="w-full h-full" onClick={handleCardClick}>
+      <CardContainer className="w-full h-full cursor-pointer">
         <CardBody className="w-full h-full p-5">
           <div className="flex flex-col h-full">
             {/* Status and date */}
@@ -53,13 +64,18 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
             {/* Task image */}
             <CardItem 
               translateZ={50}
-              className="w-full h-36 overflow-hidden rounded-lg mb-3"
+              className="w-full h-36 overflow-hidden rounded-lg mb-3 relative group"
             >
               <img 
                 src={imageUrl}
                 alt={task.title}
-                className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <span className="bg-white text-indigo-600 px-3 py-1.5 rounded-full text-sm font-medium shadow-lg">
+                  View Details
+                </span>
+              </div>
             </CardItem>
 
             {/* Task title and description */}

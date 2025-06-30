@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TaskList from '../components/TaskList';
+import TaskDetails from '../components/TaskDetails';
 import PostTask from '../components/PostTask';
 import Register from './Register';
 import Login from './Login';
@@ -37,6 +38,9 @@ function App() {
       if (path.startsWith('/profile/')) {
         const uname = decodeURIComponent(path.split('/')[2] || '');
         if (uname) return 'publicProfile:' + uname;
+      } else if (path.startsWith('/task/')) {
+        const taskId = path.split('/')[2];
+        if (taskId) return 'taskDetails:' + taskId;
       }
       return 'home';
     };
@@ -98,6 +102,13 @@ function App() {
           />
         )}
         {page === 'notifications' && <Notifications currentUser={currentUser} />}
+        {page.startsWith('taskDetails:') && (
+          <TaskDetails 
+            taskId={page.split(':')[1]}
+            currentUser={currentUser}
+            onBack={() => setPage('home')}
+          />
+        )}
         {page === 'login' && !currentUser && <Login setCurrentUser={handleLogin} />}
         {page === 'login' && currentUser && <div className="text-green-700">Already logged in.</div>}
         {page === 'register' && !currentUser && <Register setCurrentUser={setCurrentUser} />}
