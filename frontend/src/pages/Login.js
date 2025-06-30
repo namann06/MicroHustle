@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +16,7 @@ import {
 } from "../components/ui/form";
 
 function Login({ setCurrentUser }) {
+  const navigate = useNavigate();
   const FormSchema = z.object({
     username: z.string().min(1, "Username is required"),
     password: z.string().min(1, "Password is required")
@@ -38,6 +40,7 @@ function Login({ setCurrentUser }) {
       const user = await res.json();
       setCurrentUser(user);
       localStorage.setItem('currentUser', JSON.stringify(user));
+      navigate('/');
     } catch (err) {
       setError('Invalid username or password');
     }
