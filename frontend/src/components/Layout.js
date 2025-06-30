@@ -1,17 +1,364 @@
-import React from 'react';
-import NavBar from './NavBar';
+import React, { useState } from 'react';
+import { cn } from "../lib/utils";
+import { IconMenu2, IconX } from "@tabler/icons-react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+
+// Navbar Components
+const Navbar = ({ children, className, ...props }) => {
+  const ref = React.useRef(null);
+  const { scrollY } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const [visible, setVisible] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (latest > 100) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+  });
+
+  return (
+    <motion.div
+      ref={ref}
+      className={cn("sticky inset-x-0 top-0 z-40 w-full", className)}
+      {...props}
+    >
+      {React.Children.map(children, (child) =>
+        React.isValidElement(child)
+          ? React.cloneElement(child, { visible })
+          : child
+      )}
+    </motion.div>
+  );
+};
+
+const NavBody = ({ children, className, visible, ...props }) => {
+  return (
+    <motion.div
+      animate={{
+        backdropFilter: visible ? "blur(10px)" : "none",
+        boxShadow: visible
+          ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
+          : "none",
+        width: visible ? "40%" : "100%",
+        y: visible ? 20 : 0,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 50,
+      }}
+      style={{
+        minWidth: "800px",
+      }}
+      className={cn(
+        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
+        visible && "bg-white/80 dark:bg-neutral-950/80",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const NavItems = ({ items, className, onItemClick, ...props }) => {
+  const [hovered, setHovered] = useState(null);
+
+  return (
+    <motion.div
+      onMouseLeave={() => setHovered(null)}
+      className={cn(
+        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex lg:space-x-2",
+        className
+      )}
+      {...props}
+    >
+      {items.map((item, idx) => (
+        <a
+          onMouseEnter={() => setHovered(idx)}
+          onClick={onItemClick}
+          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+          key={`link-${idx}`}
+          href={item.link}
+        >
+          {hovered === idx && (
+            <motion.div
+              layoutId="hovered"
+              className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800" />
+          )}
+          <span className="relative z-20">{item.name}</span>
+        </a>
+      ))}
+    </motion.div>
+  );
+};
+
+const MobileNav = ({ children, className, visible, ...props }) => {
+  return (
+    <motion.div
+      animate={{
+        backdropFilter: visible ? "blur(10px)" : "none",
+        boxShadow: visible
+          ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
+          : "none",
+        width: visible ? "90%" : "100%",
+        paddingRight: visible ? "12px" : "0px",
+        paddingLeft: visible ? "12px" : "0px",
+        borderRadius: visible ? "4px" : "2rem",
+        y: visible ? 20 : 0,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 50,
+      }}
+      className={cn(
+        "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
+        visible && "bg-white/80 dark:bg-neutral-950/80",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const MobileNavHeader = ({ children, className, ...props }) => {
+  return (
+    <div
+      className={cn("flex w-full flex-row items-center justify-between", className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+const MobileNavMenu = ({ children, className, isOpen, onClose, ...props }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className={cn(
+            "absolute left-0 right-0 top-full z-50 mt-2 w-full rounded-lg bg-white p-4 shadow-lg dark:bg-neutral-950",
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const NavbarButton = ({
+  href,
+  as: Tag = "a",
+  children,
+  className,
+  variant = "primary",
+  ...props
+}) => {
+  const baseStyles =
+    "px-4 py-2 rounded-md bg-white text-sm font-medium relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center";
+
+  const variantStyles = {
+    primary:
+      "shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] text-black",
+    secondary: "bg-transparent shadow-none dark:text-white",
+    dark: "bg-black text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
+  };
+
+  return (
+    <Tag
+      href={href || undefined}
+      className={cn(baseStyles, variantStyles[variant], className)}
+      {...props}
+    >
+      {children}
+    </Tag>
+  );
+};
 
 export default function Layout({ children, currentUser, onLogout, setPage, unreadNotificationCount, unreadInboxCount }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const navItems = [
+    { name: 'Home', link: '/', onClick: () => setPage('home') },
+    { name: 'Browse Tasks', link: '/', onClick: () => setPage('home') },
+    currentUser?.role === 'POSTER' && { name: 'My Tasks', link: '/poster-tasks', onClick: () => setPage('posterTasks') },
+    currentUser?.role === 'HUSTLER' && { name: 'My Tasks', link: '/hustler-tasks', onClick: () => setPage('hustlerTasks') },
+    currentUser && { name: 'Inbox', link: '/inbox', onClick: () => setPage('inbox'), badge: unreadInboxCount > 0 ? unreadInboxCount : null },
+    currentUser && { name: 'Notifications', link: '/notifications', onClick: () => setPage('notifications'), badge: unreadNotificationCount > 0 ? unreadNotificationCount : null },
+  ].filter(Boolean);
+
   return (
-    <div>
-      <NavBar
-        currentUser={currentUser}
-        onLogout={onLogout}
-        setPage={setPage}
-        unreadNotificationCount={unreadNotificationCount}
-        unreadInboxCount={unreadInboxCount}
-      />
-      <main>{children}</main>
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
+      <Navbar>
+        <NavBody>
+          <a href="/" className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white">
+            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MicroHustle</span>
+          </a>
+          
+          <NavItems 
+            items={navItems} 
+            onItemClick={(e) => {
+              const clickedItem = navItems.find(item => item.name === e.target.textContent);
+              if (clickedItem?.onClick) {
+                e.preventDefault();
+                clickedItem.onClick();
+              }
+            }}
+          />
+          
+          <div className="relative z-20 flex items-center space-x-2">
+            {currentUser ? (
+              <>
+                <NavbarButton 
+                  variant="dark" 
+                  onClick={() => {
+                    setPage('profile');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Profile
+                </NavbarButton>
+                <NavbarButton 
+                  variant="secondary" 
+                  onClick={() => {
+                    onLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Logout
+                </NavbarButton>
+              </>
+            ) : (
+              <>
+                <NavbarButton 
+                  variant="secondary" 
+                  onClick={() => {
+                    setPage('login');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Login
+                </NavbarButton>
+                <NavbarButton 
+                  variant="primary" 
+                  onClick={() => {
+                    setPage('register');
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Sign Up
+                </NavbarButton>
+              </>
+            )}
+          </div>
+        </NavBody>
+
+        {/* Mobile Navigation */}
+        <MobileNav>
+          <MobileNavHeader>
+            <a href="/" className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white">
+              <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MicroHustle</span>
+            </a>
+            <button 
+              className="p-2 text-gray-700 dark:text-gray-300"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
+            </button>
+          </MobileNavHeader>
+          
+          <MobileNavMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
+            <div className="flex flex-col space-y-2">
+              {navItems.map((item, idx) => (
+                <a
+                  key={`mobile-link-${idx}`}
+                  href={item.link}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (item.onClick) item.onClick();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="block rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-800"
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{item.name}</span>
+                    {item.badge && (
+                      <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-200">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                </a>
+              ))}
+              
+              <div className="mt-4 flex flex-col space-y-2 border-t border-gray-200 pt-4 dark:border-neutral-800">
+                {currentUser ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        setPage('profile');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
+                    >
+                      View Profile
+                    </button>
+                    <button
+                      onClick={() => {
+                        onLogout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-200 dark:hover:bg-neutral-800"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => {
+                        setPage('login');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-200 dark:hover:bg-neutral-800"
+                    >
+                      Login
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPage('register');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
+                    >
+                      Sign Up
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
+
+      <main className="min-h-[calc(100vh-4rem)] pt-16">
+        {children}
+      </main>
     </div>
   );
 }
