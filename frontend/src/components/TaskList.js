@@ -52,9 +52,9 @@ function TaskList({ currentUser, search }) {
   if (error) return <div className="text-center text-red-500 py-8">{error}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-8 text-gray-800">All Projects</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <h2 className="text-3xl font-bold mb-10 text-gray-800">All Projects</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {tasks
           .filter(task => task.status !== 'ARCHIVED') // Hide archived tasks
           .filter(task => {
@@ -67,14 +67,15 @@ function TaskList({ currentUser, search }) {
             );
           })
           .map(task => (
-            <TaskCard 
-              key={task.id} 
-              task={task} 
-              currentUser={currentUser}
-              onPosterClick={handlePosterClick}
-              onAccept={handleAccept}
-              accepting={accepting}
-            />
+            <div key={task.id} className="w-full h-full">
+              <TaskCard 
+                task={task} 
+                currentUser={currentUser}
+                onPosterClick={handlePosterClick}
+                onAccept={handleAccept}
+                accepting={accepting}
+              />
+            </div>
           ))}
       </div>
     </div>
