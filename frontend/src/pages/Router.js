@@ -25,8 +25,6 @@ function AppContent({ setCurrentUser, currentUser }) {
     localStorage.removeItem('currentUser');
   };
 
-  const navigate = useNavigate();
-
   // Protected route component
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
