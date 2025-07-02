@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from "../lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
@@ -190,16 +191,27 @@ const NavbarButton = ({
   );
 };
 
-export default function Layout({ children, currentUser, onLogout, setPage, unreadNotificationCount, unreadInboxCount }) {
+export default function Layout({ children, currentUser, onLogout, unreadNotificationCount, unreadInboxCount }) {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const navItems = [
-    { name: 'Home', link: '/', onClick: () => setPage('home') },
-    { name: 'Browse Tasks', link: '/', onClick: () => setPage('home') },
-    currentUser?.role === 'POSTER' && { name: 'My Tasks', link: '/poster-tasks', onClick: () => setPage('posterTasks') },
-    currentUser?.role === 'HUSTLER' && { name: 'My Tasks', link: '/hustler-tasks', onClick: () => setPage('hustlerTasks') },
-    currentUser && { name: 'Inbox', link: '/inbox', onClick: () => setPage('inbox'), badge: unreadInboxCount > 0 ? unreadInboxCount : null },
-    currentUser && { name: 'Notifications', link: '/notifications', onClick: () => setPage('notifications'), badge: unreadNotificationCount > 0 ? unreadNotificationCount : null },
+    { name: 'Home', link: '/', onClick: () => navigate('/') },
+    { name: 'Browse Tasks', link: '/', onClick: () => navigate('/') },
+    currentUser?.role === 'POSTER' && { name: 'My Tasks', link: '/posterTasks', onClick: () => navigate('/posterTasks') },
+    currentUser?.role === 'HUSTLER' && { name: 'My Tasks', link: '/hustlerTasks', onClick: () => navigate('/hustlerTasks') },
+    currentUser && { 
+      name: 'Inbox', 
+      link: currentUser?.role === 'POSTER' ? '/posterInbox' : '/hustlerInbox', 
+      onClick: () => navigate(currentUser?.role === 'POSTER' ? '/posterInbox' : '/hustlerInbox'), 
+      badge: unreadInboxCount > 0 ? unreadInboxCount : null 
+    },
+    currentUser && { 
+      name: 'Notifications', 
+      link: '/notifications', 
+      onClick: () => navigate('/notifications'), 
+      badge: unreadNotificationCount > 0 ? unreadNotificationCount : null 
+    },
   ].filter(Boolean);
 
   return (
@@ -227,7 +239,7 @@ export default function Layout({ children, currentUser, onLogout, setPage, unrea
                 <NavbarButton 
                   variant="dark" 
                   onClick={() => {
-                    setPage('profile');
+                    navigate(`/profile/${currentUser.username}`);
                     setMobileMenuOpen(false);
                   }}
                 >
@@ -248,7 +260,7 @@ export default function Layout({ children, currentUser, onLogout, setPage, unrea
                 <NavbarButton 
                   variant="secondary" 
                   onClick={() => {
-                    setPage('login');
+                    navigate('/login');
                     setMobileMenuOpen(false);
                   }}
                 >
@@ -257,7 +269,7 @@ export default function Layout({ children, currentUser, onLogout, setPage, unrea
                 <NavbarButton 
                   variant="primary" 
                   onClick={() => {
-                    setPage('register');
+                    navigate('/register');
                     setMobileMenuOpen(false);
                   }}
                 >
@@ -311,7 +323,7 @@ export default function Layout({ children, currentUser, onLogout, setPage, unrea
                   <>
                     <button
                       onClick={() => {
-                        setPage('profile');
+                        navigate(`/profile/${currentUser.username}`);
                         setMobileMenuOpen(false);
                       }}
                       className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
@@ -332,7 +344,7 @@ export default function Layout({ children, currentUser, onLogout, setPage, unrea
                   <>
                     <button
                       onClick={() => {
-                        setPage('login');
+                        navigate('/login');
                         setMobileMenuOpen(false);
                       }}
                       className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-200 dark:hover:bg-neutral-800"
@@ -341,7 +353,7 @@ export default function Layout({ children, currentUser, onLogout, setPage, unrea
                     </button>
                     <button
                       onClick={() => {
-                        setPage('register');
+                        navigate('/register');
                         setMobileMenuOpen(false);
                       }}
                       className="w-full rounded-lg bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-indigo-700"
