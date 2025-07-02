@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Route, Routes, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, useParams, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import App from './App';
 import TaskDetails from '../components/TaskDetails';
 import UserProfile from '../components/UserProfile';
@@ -14,17 +14,48 @@ import HustlerInbox from '../components/HustlerInbox';
 import Notifications from '../components/Notifications';
 import Login from './Login';
 import Register from './Register';
+import { LandingPage } from './LandingPage';
 
 function AppContent({ setCurrentUser, currentUser }) {
-  const navigate = useNavigate();
   const unreadNotificationCount = useUnreadNotifications(currentUser);
   const unreadInboxCount = useUnreadInboxCount(currentUser, 0);
 
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
-    navigate('/');
   };
+
+  const navigate = useNavigate();
+
+  // Protected route component
+  const ProtectedRoute = ({ children }) => {
+    if (!currentUser) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
+  // Public routes that don't require authentication
+  const publicRoutes = [
+    { path: "/login", element: <Login onLogin={setCurrentUser} /> },
+    { path: "/register", element: <Register onRegister={setCurrentUser} /> },
+    { 
+      path: "/", 
+      element: !currentUser ? <LandingPage /> : <App />
+    },
+  ];
+
+  // Protected routes that require authentication
+  const protectedRoutes = [
+    { path: "/tasks/:taskId", element: <TaskDetailsWrapper /> },
+    { path: "/profile/:username", element: <UserProfileWrapper /> },
+    { path: "/post", element: <PostTask currentUser={currentUser} /> },
+    { path: "/posterTasks", element: <PosterTasks currentUser={currentUser} /> },
+    { path: "/hustlerTasks", element: <HustlerTasks currentUser={currentUser} /> },
+    { path: "/posterInbox", element: <PosterInbox currentUser={currentUser} /> },
+    { path: "/hustlerInbox", element: <HustlerInbox currentUser={currentUser} /> },
+    { path: "/notifications", element: <Notifications currentUser={currentUser} /> },
+  ];
 
   return (
     <Layout
@@ -34,17 +65,23 @@ function AppContent({ setCurrentUser, currentUser }) {
       unreadInboxCount={unreadInboxCount}
     >
       <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/tasks/:taskId" element={<TaskDetailsWrapper />} />
-        <Route path="/profile/:username" element={<UserProfileWrapper />} />
-        <Route path="/post" element={<PostTask currentUser={currentUser} />} />
-        <Route path="/posterTasks" element={<PosterTasks currentUser={currentUser} />} />
-        <Route path="/hustlerTasks" element={<HustlerTasks currentUser={currentUser} />} />
-        <Route path="/posterInbox" element={<PosterInbox currentUser={currentUser} />} />
-        <Route path="/hustlerInbox" element={<HustlerInbox currentUser={currentUser} />} />
-        <Route path="/notifications" element={<Notifications currentUser={currentUser} />} />
-        <Route path="/login" element={<Login onLogin={setCurrentUser} />} />
-        <Route path="/register" element={<Register onRegister={setCurrentUser} />} />
+        {/* Public routes */}
+        {publicRoutes.map((route, index) => (
+          <Route key={`public-${index}`} path={route.path} element={route.element} />
+        ))}
+        
+        {/* Protected routes */}
+        {protectedRoutes.map((route, index) => (
+          <Route 
+            key={`protected-${index}`} 
+            path={route.path} 
+            element={
+              <ProtectedRoute>
+                {route.element}
+              </ProtectedRoute>
+            } 
+          />
+        ))}
       </Routes>
     </Layout>
   );
