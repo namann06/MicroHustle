@@ -1,21 +1,24 @@
 import * as React from "react"
-import { useFormContext, FormProvider } from "react-hook-form"
+import { Controller } from "react-hook-form"
 
 export function Form({ children, ...props }) {
   // Only pass DOM props to <form>
-  const { action, method, onSubmit, className, style, ...rest } = props;
-  const methods = useFormContext?.() || {};
+  const { action, method, onSubmit, className, style } = props;
   return (
-    <FormProvider {...methods}>
-      <form action={action} method={method} onSubmit={onSubmit} className={className} style={style}>
-        {children}
-      </form>
-    </FormProvider>
+    <form action={action} method={method} onSubmit={onSubmit} className={className} style={style}>
+      {children}
+    </form>
   );
 }
 
 export function FormField({ name, control, render }) {
-  return render({ field: control.register(name) })
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field, fieldState }) => render({ field, fieldState })}
+    />
+  )
 }
 
 export function FormItem({ children, ...props }) {

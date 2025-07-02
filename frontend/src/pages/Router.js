@@ -35,8 +35,8 @@ function AppContent({ setCurrentUser, currentUser }) {
 
   // Public routes that don't require authentication
   const publicRoutes = [
-    { path: "/login", element: <Login onLogin={setCurrentUser} /> },
-    { path: "/register", element: <Register onRegister={setCurrentUser} /> },
+    { path: "/login", element: <Login setCurrentUser={setCurrentUser} /> },
+    { path: "/register", element: <Register setCurrentUser={setCurrentUser} /> },
     { 
       path: "/", 
       element: !currentUser ? <LandingPage /> : <App />

@@ -7,7 +7,6 @@ import { z } from "zod";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
-  Form,
   FormField,
   FormItem,
   FormLabel,
@@ -48,37 +47,37 @@ function Login({ setCurrentUser }) {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100">
-      <Form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-sm p-6 sm:p-8 bg-white rounded-2xl shadow-2xl border border-gray-200 space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-sm p-6 sm:p-8 bg-white rounded-2xl shadow-2xl border border-gray-200 space-y-6">
           <h2 className="text-3xl font-extrabold mb-8 text-center text-indigo-800 tracking-tight">Login</h2>
           {error && <div className="text-red-600 text-center mb-4 font-medium">{error}</div>}
           <FormField
             control={form.control}
             name="username"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">Username</FormLabel>
                 <FormControl>
                   <Input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" placeholder="Username" {...field} />
                 </FormControl>
-                <FormMessage className="text-xs text-red-500 mt-1" />
+                <FormMessage className="text-xs text-red-500 mt-1">{fieldState.error?.message}</FormMessage>
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
             name="password"
-            render={({ field }) => (
+            render={({ field, fieldState }) => (
               <FormItem>
                 <FormLabel className="block text-sm font-semibold text-gray-700 mb-2">Password</FormLabel>
                 <FormControl>
                   <Input type="password" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" placeholder="Password" {...field} />
                 </FormControl>
-                <FormMessage className="text-xs text-red-500 mt-1" />
+                <FormMessage className="text-xs text-red-500 mt-1">{fieldState.error?.message}</FormMessage>
               </FormItem>
             )}
           />
           <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow" type="submit">Login</Button>
-      </Form>
+      </form>
     </div>
   );
 }
