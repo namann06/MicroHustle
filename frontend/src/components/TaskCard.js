@@ -31,7 +31,9 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
-  const imageUrl = task.imageUrl || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80';
+  const imageUrl = task.imageUrl 
+    ? (task.imageUrl.startsWith('http') ? task.imageUrl : `http://localhost:8080${task.imageUrl}`)
+    : 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80';
   // Ensure profilePicUrl is properly constructed with the base URL if it's a relative path
   const getProfilePicUrl = () => {
     if (!task.poster?.profilePicUrl) {

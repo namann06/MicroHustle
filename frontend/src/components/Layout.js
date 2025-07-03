@@ -67,7 +67,7 @@ const NavBody = ({ children, className, visible, ...props }) => {
   );
 };
 
-const NavItems = ({ items, className, onItemClick, ...props }) => {
+const NavItems = ({ items, className, ...props }) => {
   const [hovered, setHovered] = useState(null);
 
   return (
@@ -80,12 +80,16 @@ const NavItems = ({ items, className, onItemClick, ...props }) => {
       {...props}
     >
       {items.map((item, idx) => (
-        <a
+        <button
           onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300"
+          onClick={(e) => {
+            e.preventDefault();
+            if (item.onClick) {
+              item.onClick();
+            }
+          }}
+          className="relative px-4 py-2 text-neutral-600 dark:text-neutral-300 cursor-pointer border-none bg-transparent"
           key={`link-${idx}`}
-          href={item.link}
         >
           {hovered === idx && (
             <motion.div
@@ -93,7 +97,7 @@ const NavItems = ({ items, className, onItemClick, ...props }) => {
               className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800" />
           )}
           <span className="relative z-20">{item.name}</span>
-        </a>
+        </button>
       ))}
     </motion.div>
   );
@@ -198,6 +202,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
   const navItems = [
     { name: 'Home', link: '/', onClick: () => navigate('/') },
     { name: 'Browse Tasks', link: '/', onClick: () => navigate('/') },
+    currentUser?.role === 'POSTER' && { name: 'Post Task', link: '/post', onClick: () => navigate('/post') },
     currentUser?.role === 'POSTER' && { name: 'My Tasks', link: '/posterTasks', onClick: () => navigate('/posterTasks') },
     currentUser?.role === 'HUSTLER' && { name: 'My Tasks', link: '/hustlerTasks', onClick: () => navigate('/hustlerTasks') },
     currentUser && { 
@@ -218,19 +223,15 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
     <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
       <Navbar>
         <NavBody>
-          <a href="/" className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white">
+          <button 
+            onClick={() => navigate('/')} 
+            className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer"
+          >
             <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MicroHustle</span>
-          </a>
+          </button>
           
           <NavItems 
-            items={navItems} 
-            onItemClick={(e) => {
-              const clickedItem = navItems.find(item => item.name === e.target.textContent);
-              if (clickedItem?.onClick) {
-                e.preventDefault();
-                clickedItem.onClick();
-              }
-            }}
+            items={navItems}
           />
           
           <div className="relative z-20 flex items-center space-x-2">
@@ -283,9 +284,12 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
         {/* Mobile Navigation */}
         <MobileNav>
           <MobileNavHeader>
-            <a href="/" className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white">
+            <button 
+              onClick={() => navigate('/')} 
+              className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer"
+            >
               <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MicroHustle</span>
-            </a>
+            </button>
             <button 
               className="p-2 text-gray-700 dark:text-gray-300"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -297,15 +301,14 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
           <MobileNavMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
             <div className="flex flex-col space-y-2">
               {navItems.map((item, idx) => (
-                <a
+                <button
                   key={`mobile-link-${idx}`}
-                  href={item.link}
                   onClick={(e) => {
                     e.preventDefault();
                     if (item.onClick) item.onClick();
                     setMobileMenuOpen(false);
                   }}
-                  className="block rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-800"
+                  className="w-full text-left block rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-800 border-none bg-transparent"
                 >
                   <div className="flex items-center justify-between">
                     <span>{item.name}</span>
@@ -315,7 +318,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
                       </span>
                     )}
                   </div>
-                </a>
+                </button>
               ))}
               
               <div className="mt-4 flex flex-col space-y-2 border-t border-gray-200 pt-4 dark:border-neutral-800">

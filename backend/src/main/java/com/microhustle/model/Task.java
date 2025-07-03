@@ -16,6 +16,7 @@ public class Task {
     private Integer budget;
     private LocalDate deadline;
     private String status;
+    private String imageUrl;
 
     @ManyToOne
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"postedTasks", "acceptedTasks", "password"})
@@ -55,6 +56,8 @@ public class Task {
     public void setDeadline(LocalDate deadline) { this.deadline = deadline; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public User getPoster() { return poster; }
     public void setPoster(User poster) { this.poster = poster; }
     public java.util.Set<User> getAcceptedHustlers() { return acceptedHustlers; }

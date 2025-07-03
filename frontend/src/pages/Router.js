@@ -27,7 +27,14 @@ function AppContent({ setCurrentUser, currentUser }) {
 
   // Protected route component
   const ProtectedRoute = ({ children }) => {
-    if (!currentUser) {
+    console.log('ProtectedRoute - currentUser:', currentUser);
+    
+    // Check localStorage as fallback
+    const storedUser = localStorage.getItem('currentUser');
+    console.log('ProtectedRoute - localStorage user:', storedUser);
+    
+    if (!currentUser && !storedUser) {
+      console.log('ProtectedRoute - No user found, redirecting to login');
       return <Navigate to="/login" replace />;
     }
     return children;
@@ -89,9 +96,21 @@ function MainRouter() {
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    console.log('MainRouter useEffect - Loading user from localStorage');
     const saved = localStorage.getItem('currentUser');
-    if (saved) setCurrentUser(JSON.parse(saved));
+    if (saved) {
+      const user = JSON.parse(saved);
+      console.log('MainRouter - Loaded user from localStorage:', user);
+      setCurrentUser(user);
+    } else {
+      console.log('MainRouter - No user found in localStorage');
+    }
   }, []);
+
+  // Debug: Log currentUser changes
+  useEffect(() => {
+    console.log('MainRouter - currentUser changed:', currentUser);
+  }, [currentUser]);
 
   return (
     <BrowserRouter>

@@ -12,6 +12,7 @@ import java.nio.file.*;
 
 @RestController
 @RequestMapping("/api/files")
+@CrossOrigin(origins = "http://localhost:3000")
 public class FileUploadController {
 
     @Value("${file.upload-dir:uploads}")
@@ -19,21 +20,33 @@ public class FileUploadController {
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+        System.out.println("File upload request received");
+        System.out.println("File name: " + file.getOriginalFilename());
+        System.out.println("File size: " + file.getSize());
+        System.out.println("File content type: " + file.getContentType());
+        
         if (file.isEmpty()) {
+            System.out.println("File is empty");
             return ResponseEntity.badRequest().body("No file selected");
         }
         try {
             String filename = System.currentTimeMillis() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
             Path uploadPath = Paths.get(uploadDir);
+            System.out.println("Upload path: " + uploadPath.toAbsolutePath());
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
+                System.out.println("Created upload directory");
             }
             Path filePath = uploadPath.resolve(filename);
+            System.out.println("Saving file to: " + filePath.toAbsolutePath());
             file.transferTo(filePath);
             String fileUrl = "/uploads/" + filename;
+            System.out.println("File saved successfully: " + fileUrl);
             return ResponseEntity.ok().body(fileUrl);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed");
+            System.err.println("File upload failed: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed: " + e.getMessage());
         }
     }
 }
