@@ -8,10 +8,34 @@
   @apply text-xl font-bold text-yellow-500 tracking-wide;
 }
 .navbar-links {
-  @apply flex items-center gap-4;
+  @apply flex items-center gap-6;
 }
 .navbar-link {
   @apply text-gray-700 hover:text-yellow-500 font-medium transition-colors duration-200;
   text-decoration: none;
   cursor: pointer;
+  position: relative;
+}
+
+/* Ensure notification badges don't cause layout shifts */
+.navbar-notification-container {
+  @apply relative inline-block;
+  min-width: fit-content;
+}
+
+.navbar-notification-badge {
+  @apply absolute bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center;
+  top: -4px;
+  right: 0;
+  z-index: 10;
+}
+
+/* Add breathing room for buttons with badges */
+.navbar-button-with-badge {
+  @apply pr-6;
+}
+
+/* Smooth transitions for all interactive elements */
+.navbar-button {
+  @apply hover:text-yellow-500 transition-colors duration-200;
 }
