@@ -9,8 +9,8 @@ import useUnreadInboxCount from '../hooks/useUnreadInboxCount';
 import PostTask from '../components/PostTask';
 import PosterTasks from '../components/PosterTasks';
 import HustlerTasks from '../components/HustlerTasks';
-import PosterInbox from '../components/PosterInbox';
-import HustlerInbox from '../components/HustlerInbox';
+import ModernPosterInbox from '../components/ModernPosterInbox';
+import ModernHustlerInbox from '../components/ModernHustlerInbox';
 import Notifications from '../components/Notifications';
 import Login from './Login';
 import Register from './Register';
@@ -18,11 +18,16 @@ import { LandingPage } from './LandingPage';
 
 function AppContent({ setCurrentUser, currentUser }) {
   const unreadNotificationCount = useUnreadNotifications(currentUser);
-  const unreadInboxCount = useUnreadInboxCount(currentUser, 0);
+  const [inboxUpdateTrigger, setInboxUpdateTrigger] = useState(0);
+  const unreadInboxCount = useUnreadInboxCount(currentUser, inboxUpdateTrigger);
 
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
+  };
+
+  const handleInboxRead = () => {
+    setInboxUpdateTrigger(prev => prev + 1);
   };
 
   // Protected route component
@@ -57,8 +62,8 @@ function AppContent({ setCurrentUser, currentUser }) {
     { path: "/post", element: <PostTask currentUser={currentUser} /> },
     { path: "/posterTasks", element: <PosterTasks currentUser={currentUser} /> },
     { path: "/hustlerTasks", element: <HustlerTasks currentUser={currentUser} /> },
-    { path: "/posterInbox", element: <PosterInbox currentUser={currentUser} /> },
-    { path: "/hustlerInbox", element: <HustlerInbox currentUser={currentUser} /> },
+    { path: "/posterInbox", element: <ModernPosterInbox currentUser={currentUser} onInboxRead={handleInboxRead} /> },
+    { path: "/hustlerInbox", element: <ModernHustlerInbox currentUser={currentUser} onInboxRead={handleInboxRead} /> },
     { path: "/notifications", element: <Notifications currentUser={currentUser} /> },
   ];
 
