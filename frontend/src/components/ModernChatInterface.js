@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { Send, Paperclip, Smile, X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { X } from "lucide-react";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
+import { ChatForm } from "./ui/chat";
+import { MessageInput } from "./ui/message-input";
 
 function isImage(filename) {
   return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(filename);
@@ -36,9 +36,8 @@ export default function ModernChatInterface({
 }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [attachment, setAttachment] = useState(null);
   const [otherTyping, setOtherTyping] = useState(false);
-  const fileInputRef = useRef();
+  const [isGenerating, setIsGenerating] = useState(false);
   const messagesEndRef = useRef(null);
   const stompRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -51,6 +50,7 @@ export default function ModernChatInterface({
     const minId = Math.min(currentUser.id, otherUser.id);
     const maxId = Math.max(currentUser.id, otherUser.id);
     const topic = `/topic/chat/${task.id}-${minId}-${maxId}`;
+    console.log('Subscribing to WebSocket topic:', topic);
 
     const socket = new SockJS('http://localhost:8080/ws');
     const client = new Client({
@@ -58,9 +58,10 @@ export default function ModernChatInterface({
       onConnect: () => {
         client.subscribe(topic, message => {
           const msg = JSON.parse(message.body);
+          console.log('WebSocket message received:', msg);
           if (msg.type === 'typing') {
             setOtherTyping(msg.senderId !== currentUser.id && msg.typing);
-          } else if (msg.type === 'message') {
+          } else {
             setMessages(prev => [...prev, msg]);
           }
         });
@@ -106,40 +107,30 @@ export default function ModernChatInterface({
     }, 1000);
   };
 
-  const handleSend = async () => {
-    if (!input.trim() && !attachment) return;
-
-    let messageData = {
-      senderId: currentUser.id,
-      receiverId: otherUser.id,
-      taskId: task.id,
-      content: input,
-      timestamp: new Date().toISOString()
-    };
-
-    if (attachment) {
-      const formData = new FormData();
-      formData.append('file', attachment);
-      formData.append('senderId', currentUser.id);
-      formData.append('receiverId', otherUser.id);
-      formData.append('taskId', task.id);
-      formData.append('content', input);
-
-      await fetch('http://localhost:8080/api/messages/send-with-file', {
-        method: 'POST',
-        body: formData
-      });
-    } else {
+  const handleSend = async (event) => {
+    event?.preventDefault?.();
+    if (!input.trim()) return;
+    setIsGenerating(true);
+    const formData = new URLSearchParams();
+    formData.append('senderId', currentUser.id);
+    formData.append('recipientId', otherUser.id);
+    formData.append('taskId', task.id);
+    formData.append('content', input);
+    // attachmentUrl is optional and not used here
+    try {
+      console.log('Sending message:', Object.fromEntries(formData));
       await fetch('http://localhost:8080/api/messages/send', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(messageData)
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
       });
+      setInput("");
+      sendTypingIndicator(false);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setIsGenerating(false);
     }
-
-    setInput("");
-    setAttachment(null);
-    sendTypingIndicator(false);
   };
 
   const formatTime = (timestamp) => {
@@ -154,61 +145,58 @@ export default function ModernChatInterface({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white modern-inbox">
+    <div className="flex flex-col h-full bg-black modern-inbox">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b glass-header">
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <div className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">
-            <AvatarFallback className="avatar-gradient-blue">
+            <AvatarFallback className="bg-gray-600 text-white">
               {getInitials(otherUser.username)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold text-gray-900">{otherUser.username}</h3>
-            <p className="text-sm text-gray-500">{task.title}</p>
+            <h3 className="font-semibold text-white">{otherUser.username}</h3>
+            <p className="text-sm text-gray-400">{task.title}</p>
           </div>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="h-8 w-8 p-0 hover:bg-gray-100"
+          className="h-8 w-8 p-0 hover:bg-gray-800 text-gray-400"
         >
           <X className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 messages-scroll">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 messages-scroll bg-black">
         {messages.map((msg, index) => {
           const isOwn = msg.senderId === currentUser.id;
-          const showAvatar = index === 0 || messages[index - 1].senderId !== msg.senderId;
+          const showUserName = index === 0 || messages[index - 1].senderId !== msg.senderId;
           
           return (
             <div
               key={index}
-              className={`flex message-enter ${isOwn ? 'justify-end' : 'justify-start'} ${
-                showAvatar ? 'mt-4' : 'mt-1'
-              }`}
+              className={`flex flex-col message-enter ${isOwn ? 'items-end' : 'items-start'}`}
             >
-              <div className={`message-bubble flex max-w-xs lg:max-w-md xl:max-w-lg ${isOwn ? 'flex-row-reverse own' : 'flex-row other'} items-end space-x-2`}>
-                {showAvatar && !isOwn && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="avatar-gradient-gray text-white text-xs">
-                      {getInitials(otherUser.username)}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                
+              {/* Show username for message groups */}
+              {showUserName && (
+                <div className={`text-sm text-gray-400 mb-2 px-1 ${isOwn ? 'text-right' : 'text-left'}`}>
+                  {isOwn ? currentUser.username : otherUser.username}
+                </div>
+              )}
+              
+              <div className={`max-w-xs lg:max-w-md xl:max-w-lg ${showUserName ? '' : 'mt-1'}`}>
                 <div
-                  className={`px-4 py-2 rounded-2xl chat-transition ${
+                  className={`px-4 py-3 rounded-2xl text-sm ${
                     isOwn
-                      ? 'bg-blue-500 text-white rounded-br-sm shadow-lg'
-                      : 'bg-gray-100 text-gray-900 rounded-bl-sm shadow-md'
+                      ? 'bg-white text-black ml-auto'
+                      : 'bg-gray-800 text-white'
                   }`}
                 >
                   {msg.content && (
-                    <div className="text-sm">
+                    <div>
                       {renderMessageContent(msg.content)}
                     </div>
                   )}
@@ -219,7 +207,7 @@ export default function ModernChatInterface({
                         <img
                           src={`http://localhost:8080/api/messages/file/${msg.filename}`}
                           alt={msg.filename}
-                          className="max-w-full h-auto rounded-lg cursor-pointer"
+                          className="max-w-full h-auto rounded-lg cursor-pointer shadow-md"
                           onClick={() => window.open(`http://localhost:8080/api/messages/file/${msg.filename}`, '_blank')}
                         />
                       ) : (
@@ -227,42 +215,38 @@ export default function ModernChatInterface({
                           href={`http://localhost:8080/api/messages/file/${msg.filename}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`inline-flex items-center px-3 py-2 rounded-lg text-sm ${
-                            isOwn ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-200 hover:bg-gray-300'
+                          className={`inline-flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
+                            isOwn ? 'bg-gray-100 hover:bg-gray-200 text-black' : 'bg-gray-700 hover:bg-gray-600'
                           }`}
                         >
-                          <Paperclip className="h-4 w-4 mr-2" />
+                          <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                          </svg>
                           {getFileTypeLabel(msg.filename)}
                         </a>
                       )}
                     </div>
                   )}
-                  
-                  <div className={`text-xs mt-1 ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {formatTime(msg.timestamp)}
-                  </div>
                 </div>
                 
-                {showAvatar && isOwn && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="avatar-gradient-blue text-white text-xs">
-                      {getInitials(currentUser.username)}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
+                <div className={`text-xs mt-1 px-1 text-gray-500 ${isOwn ? 'text-right' : 'text-left'}`}>
+                  {formatTime(msg.timestamp)}
+                </div>
               </div>
             </div>
           );
         })}
         
         {otherTyping && (
-          <div className="flex items-center space-x-2 message-enter">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="avatar-gradient-gray text-white text-xs">
-                {getInitials(otherUser.username)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="bg-gray-100 px-4 py-2 rounded-2xl rounded-bl-sm shadow-md">
+          <div className="flex items-start space-x-3 message-enter">
+            <div className="text-sm text-gray-400 mb-2 px-1">
+              {otherUser.username}
+            </div>
+          </div>
+        )}
+        {otherTyping && (
+          <div className="flex items-start">
+            <div className="bg-gray-800 px-4 py-3 rounded-2xl max-w-xs">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
@@ -275,57 +259,25 @@ export default function ModernChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className="border-t p-4 bg-white">
-        {attachment && (
-          <div className="mb-3 p-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between chat-transition">
-            <span className="text-sm text-blue-700">📎 {attachment.name}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setAttachment(null)}
-              className="h-6 w-6 p-0 hover:bg-blue-100"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-        
-        <div className="flex items-center space-x-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={(e) => setAttachment(e.target.files[0])}
-            className="hidden"
-          />
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            className="h-10 w-10 p-0 hover:bg-gray-100 chat-transition"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
-          
-          <div className="flex-1">
-            <Input
-              placeholder="Type a message..."
+      {/* Modern Message Input */}
+      <div className="border-t border-gray-800 bg-black">
+        <ChatForm
+          className="w-full"
+          isPending={isGenerating}
+          handleSubmit={handleSend}
+        >
+          {({ files: formFiles, setFiles: setFormFiles }) => (
+            <MessageInput
               value={input}
               onChange={handleInputChange}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 chat-input"
+              allowAttachments
+              files={formFiles}
+              setFiles={setFormFiles}
+              placeholder="Type a message..."
+              className="bg-black"
             />
-          </div>
-          
-          <Button
-            onClick={handleSend}
-            disabled={!input.trim() && !attachment}
-            className="h-10 w-10 p-0 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 chat-transition"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
+          )}
+        </ChatForm>
       </div>
     </div>
   );

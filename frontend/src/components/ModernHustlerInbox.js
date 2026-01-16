@@ -122,13 +122,13 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 modern-inbox">
+    <div className="flex h-screen bg-black modern-inbox">
       {/* Sidebar - Chat List */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col chat-sidebar">
+      <div className="w-80 bg-black border-r border-gray-800 flex flex-col chat-sidebar">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 glass-header">
+        <div className="p-6 border-b border-gray-800">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+            <h1 className="text-2xl font-bold text-white">Messages</h1>
             {getTotalUnreadCount() > 0 && (
               <Badge variant="default" className="bg-blue-500">
                 {getTotalUnreadCount()}
@@ -138,12 +138,12 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
           
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
             />
           </div>
         </div>
@@ -152,31 +152,31 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
         <div className="flex-1 overflow-y-auto chat-list-scroll">
           {(!Array.isArray(filteredThreads) || filteredThreads.length === 0) ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-500">
-              <MessageCircle className="h-12 w-12 mb-4" />
+              <MessageCircle className="h-12 w-12 mb-4 text-gray-600" />
               <p className="text-lg font-medium">No conversations</p>
               <p className="text-sm">Your messages will appear here</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-800">
               {filteredThreads.map(thread => (                  <div
                     key={thread.taskId + '-' + thread.posterId}
-                    className={`p-4 cursor-pointer transition-colors duration-150 hover:bg-gray-50 chat-transition ${
+                    className={`p-4 cursor-pointer transition-colors duration-150 hover:bg-gray-900 chat-transition ${
                       selectedThread && selectedThread.taskId === thread.taskId && selectedThread.posterId === thread.posterId
-                        ? 'bg-blue-50 border-r-2 border-blue-500'
+                        ? 'bg-gray-800 border-r-2 border-blue-500'
                         : ''
                     }`}
                     onClick={() => openChat(thread)}
                   >
                     <div className="flex items-start space-x-3">
                       <Avatar className="h-12 w-12">
-                        <AvatarFallback className="avatar-gradient-blue text-white">
+                        <AvatarFallback className="bg-gray-700 text-white">
                           {getInitials(thread.posterUsername)}
                         </AvatarFallback>
                       </Avatar>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-white truncate">
                           {thread.posterUsername}
                         </p>
                         {thread.lastMessageTime && (
@@ -186,12 +186,12 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
                         )}
                       </div>
                       
-                      <p className="text-sm text-blue-600 font-medium truncate mt-1">
+                      <p className="text-sm text-blue-400 font-medium truncate mt-1">
                         {thread.taskTitle}
                       </p>
                       
                       {thread.lastMessage && (
-                        <p className="text-sm text-gray-600 truncate mt-1">
+                        <p className="text-sm text-gray-400 truncate mt-1">
                           {thread.lastMessage}
                         </p>
                       )}
