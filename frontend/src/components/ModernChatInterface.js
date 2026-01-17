@@ -172,9 +172,9 @@ export default function ModernChatInterface({
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6 messages-scroll bg-black">
         {messages.map((msg, index) => {
-          const isOwn = msg.senderId === currentUser.id;
-          const showUserName = index === 0 || messages[index - 1].senderId !== msg.senderId;
-          
+          const isOwn = msg.sender && msg.sender.id === currentUser.id;
+          const prevMsg = messages[index - 1];
+          const showUserName = index === 0 || (prevMsg && prevMsg.sender && prevMsg.sender.id !== (msg.sender && msg.sender.id));
           return (
             <div
               key={index}
@@ -186,21 +186,20 @@ export default function ModernChatInterface({
                   {isOwn ? currentUser.username : otherUser.username}
                 </div>
               )}
-              
-              <div className={`max-w-xs lg:max-w-md xl:max-w-lg ${showUserName ? '' : 'mt-1'}`}>
+              <div className={`max-w-xs lg:max-w-md xl:max-w-lg ${showUserName ? '' : 'mt-1'} flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`px-4 py-3 rounded-2xl text-sm ${
+                  className={`px-4 py-3 rounded-2xl text-sm shadow-md ${
                     isOwn
-                      ? 'bg-white text-black ml-auto'
-                      : 'bg-gray-800 text-white'
+                      ? 'bg-gradient-to-br from-gray-200 to-white text-black ml-auto'
+                      : 'bg-gradient-to-br from-gray-700 to-gray-900 text-white mr-auto'
                   }`}
+                  style={{ minWidth: '60px', wordBreak: 'break-word' }}
                 >
                   {msg.content && (
                     <div>
                       {renderMessageContent(msg.content)}
                     </div>
                   )}
-                  
                   {msg.filename && (
                     <div className="mt-2">
                       {isImage(msg.filename) ? (
@@ -227,10 +226,7 @@ export default function ModernChatInterface({
                       )}
                     </div>
                   )}
-                </div>
-                
-                <div className={`text-xs mt-1 px-1 text-gray-500 ${isOwn ? 'text-right' : 'text-left'}`}>
-                  {formatTime(msg.timestamp)}
+                  <div className={`text-xs mt-1 px-1 text-gray-400 ${isOwn ? 'text-right' : 'text-left'}`}>{formatTime(msg.timestamp)}</div>
                 </div>
               </div>
             </div>
