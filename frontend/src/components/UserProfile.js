@@ -156,38 +156,7 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
       </div>
       {/* Right: Projects/Tasks and Ratings */}
       <div className="flex-1 flex flex-col gap-7 pl-2">
-        <h2 className="text-3xl font-black mb-4 mt-2 text-[#101828]">All Tasks</h2>
-        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-7 card_grid-sm">
-          {tasks.length === 0 ? (
-            <div className="text-gray-400">No tasks found.</div>
-          ) : (
-            tasks.map(task => (
-              <li key={task.id} className="task-list_card list-none border-4 border-[#10172a] shadow-xl">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="task-list_date">{task.createdAt ? new Date(task.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}</p>
-                  {/* <span className="flex items-center gap-1 text-xs text-gray-400"><EyeIcon className="w-4 h-4" />{task.views}</span> */}
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-medium text-gray-800">{task.poster?.username || 'Unknown'}</span>
-                  {task.poster?.profilePicUrl && <img src={task.poster.profilePicUrl.startsWith('/') ? `http://localhost:8080${task.poster.profilePicUrl}` : task.poster.profilePicUrl} alt={task.poster.username} className="w-7 h-7 rounded-full border ml-1" />}
-                </div>
-                <h3 className="text-xl font-bold text-[#101828] truncate mt-1">{task.title}</h3>
-                <p className="task-list_desc">{task.description}</p>
-                <img src={task.imageUrl || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80'} alt="task" className="task-list_img" />
-                <div className="flex items-center justify-between gap-3 mt-3">
-                  <span className="text-xs px-3 py-1 bg-gray-100 rounded-full text-gray-600 font-medium cursor-pointer hover:bg-gray-200 transition">{task.tags || 'General'}</span>
-                  <span className="text-xs px-3 py-1 bg-blue-100 rounded-full text-blue-700 font-semibold">₹{task.budget}</span>
-                </div>
-                <button
-                  className="task-list_btn mt-5 w-full"
-                  onClick={() => window.location.href = `/tasks/${task.id}`}
-                >
-                  Details
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
+        {/* Task list removed, see PosterTasks page for posted tasks */}
         {/* Ratings/Reviews for Hustler */}
         {profile.role === "HUSTLER" && ratings && ratings.ratings.length > 0 && (
           <div className="mb-4">
