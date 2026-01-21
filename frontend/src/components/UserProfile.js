@@ -147,6 +147,12 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
         ) : (
           <>
             <div className="text-white text-center mb-2 min-h-[32px]">{profile.bio || <span className="italic text-gray-300">No bio yet.</span>}</div>
+            <button
+              className="mt-2 bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition border border-black"
+              onClick={() => setEditMode(true)}
+            >
+              Edit Profile
+            </button>
             {userId && (
               <button className="bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition" onClick={() => setEditMode(true)}>Edit Profile</button>
             )}
