@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-export default function UserProfile({ userId, username, onUsernameClick }) {
+export default function UserProfile({ userId, username, onUsernameClick, currentUser }) {
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [ratings, setRatings] = useState(null);
@@ -114,7 +114,8 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
         <p className="font-extrabold text-2xl text-white mt-6 mb-2 text-center">@{profile.username}</p>
         {/* Bio and edit controls */}
         <div className="w-full flex flex-col items-center">
-        {editMode ? (
+        {/* Only allow editing if viewing own profile (by id or username) */}
+        {currentUser && profile && ((userId && String(currentUser.id) === String(userId)) || (!userId && profile.username && currentUser.username === profile.username)) && editMode ? (
           <>
             <input
               type="file"
@@ -147,12 +148,14 @@ export default function UserProfile({ userId, username, onUsernameClick }) {
         ) : (
           <>
             <div className="text-white text-center mb-2 min-h-[32px]">{profile.bio || <span className="italic text-gray-300">No bio yet.</span>}</div>
-            <button
-              className="mt-2 bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition border border-black"
-              onClick={() => setEditMode(true)}
-            >
-              Edit Profile
-            </button>
+            {currentUser && profile && ((userId && String(currentUser.id) === String(userId)) || (!userId && profile.username && currentUser.username === profile.username)) && (
+              <button
+                className="mt-2 bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition border border-black"
+                onClick={() => setEditMode(true)}
+              >
+                Edit Profile
+              </button>
+            )}
             {userId && (
               <button className="bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition" onClick={() => setEditMode(true)}>Edit Profile</button>
             )}

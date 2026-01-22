@@ -134,7 +134,14 @@ function TaskDetailsWrapper() {
 
 function UserProfileWrapper() {
   const { username } = useParams();
-  return <UserProfile username={username} />;
+  const location = useLocation();
+  // Try to get currentUser from location.state, fallback to localStorage
+  let currentUser = location.state && location.state.currentUser ? location.state.currentUser : null;
+  if (!currentUser) {
+    const saved = localStorage.getItem('currentUser');
+    if (saved) currentUser = JSON.parse(saved);
+  }
+  return <UserProfile username={username} currentUser={currentUser} />;
 }
 
 export default MainRouter;

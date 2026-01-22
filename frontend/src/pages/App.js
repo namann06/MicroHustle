@@ -116,12 +116,12 @@ function App() {
       </div>
       {page === 'profile' && currentUser && (
         <div className="p-4">
-          <UserProfile userId={currentUser.id} />
+          <UserProfile userId={currentUser.id} currentUser={currentUser} />
         </div>
       )}
       {page.startsWith('publicProfile:') && (
         <div className="p-4">
-          <UserProfile username={page.split(':')[1]} />
+          <UserProfile username={page.split(':')[1]} currentUser={currentUser} />
         </div>
       )}
     </div>
