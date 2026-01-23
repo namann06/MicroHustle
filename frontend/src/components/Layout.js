@@ -209,7 +209,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
   
   const navItems = [
     { name: 'Home', link: '/', onClick: () => navigate('/') },
-    { name: 'Browse Tasks', link: '/', onClick: () => navigate('/') },
+    { name: 'Browse Tasks', link: '/browse', onClick: () => navigate('/browse') },
     currentUser?.role === 'POSTER' && { name: 'Post Task', link: '/post', onClick: () => navigate('/post') },
     currentUser?.role === 'POSTER' && { name: 'My Tasks', link: '/posterTasks', onClick: () => navigate('/posterTasks') },
     currentUser?.role === 'HUSTLER' && { name: 'My Tasks', link: '/hustlerTasks', onClick: () => navigate('/hustlerTasks') },

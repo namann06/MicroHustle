@@ -15,6 +15,7 @@ import Notifications from '../components/Notifications';
 import Login from './Login';
 import Register from './Register';
 import { LandingPage } from './LandingPage';
+import BrowseTasksPage from './BrowseTasksPage';
 
 function AppContent({ setCurrentUser, currentUser }) {
   const unreadNotificationCount = useUnreadNotifications(currentUser);
@@ -53,6 +54,10 @@ function AppContent({ setCurrentUser, currentUser }) {
       path: "/", 
       element: !currentUser ? <LandingPage /> : <App />
     },
+    {
+      path: "/browse",
+      element: <BrowseTasksPage />
+    }
   ];
 
   // Protected routes that require authentication
