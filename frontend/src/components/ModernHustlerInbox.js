@@ -122,15 +122,15 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
   }
 
   return (
-    <div className="flex h-screen bg-black modern-inbox">
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-950 modern-inbox">
       {/* Sidebar - Chat List */}
-      <div className="w-80 bg-black border-r border-gray-800 flex flex-col chat-sidebar">
+      <div className="w-80 bg-gray-900/80 backdrop-blur-sm border-r border-indigo-900/50 flex flex-col chat-sidebar">
         {/* Header */}
-        <div className="p-6 border-b border-gray-800">
+        <div className="p-6 border-b border-indigo-900/50 bg-gradient-to-r from-gray-900/90 to-indigo-950/90">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-white">Messages</h1>
             {getTotalUnreadCount() > 0 && (
-              <Badge variant="default" className="bg-blue-500">
+              <Badge variant="default" className="bg-indigo-800 hover:bg-indigo-700">
                 {getTotalUnreadCount()}
               </Badge>
             )}
@@ -138,12 +138,12 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
           
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-indigo-500" />
             <Input
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-900 border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-600"
+              className="pl-10 bg-gray-800/80 border-indigo-800/50 text-white placeholder:text-indigo-400 focus:border-indigo-700 focus:ring-indigo-700"
             />
           </div>
         </div>
@@ -151,25 +151,25 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
         {/* Chat List */}
         <div className="flex-1 overflow-y-auto chat-list-scroll">
           {(!Array.isArray(filteredThreads) || filteredThreads.length === 0) ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500">
-              <MessageCircle className="h-12 w-12 mb-4 text-gray-600" />
+            <div className="flex flex-col items-center justify-center h-full text-indigo-400">
+              <MessageCircle className="h-12 w-12 mb-4 text-indigo-500" />
               <p className="text-lg font-medium">No conversations</p>
               <p className="text-sm">Your messages will appear here</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-800">
+            <div className="divide-y divide-indigo-900/30">
               {filteredThreads.map(thread => (                  <div
                     key={thread.taskId + '-' + thread.posterId}
-                    className={`p-4 cursor-pointer transition-colors duration-150 hover:bg-gray-900 chat-transition ${
+                    className={`p-4 cursor-pointer transition-colors duration-150 hover:bg-indigo-950/50 chat-transition ${
                       selectedThread && selectedThread.taskId === thread.taskId && selectedThread.posterId === thread.posterId
-                        ? 'bg-gray-800 border-r-2 border-blue-500'
+                        ? 'bg-indigo-900/50 border-r-2 border-indigo-700'
                         : ''
                     }`}
                     onClick={() => openChat(thread)}
                   >
                     <div className="flex items-start space-x-3">
                       <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-gray-700 text-white">
+                        <AvatarFallback className="bg-indigo-800 text-white">
                           {getInitials(thread.posterUsername)}
                         </AvatarFallback>
                       </Avatar>
@@ -180,30 +180,30 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
                           {thread.posterUsername}
                         </p>
                         {thread.lastMessageTime && (
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-indigo-400">
                             {formatTime(thread.lastMessageTime)}
                           </p>
                         )}
                       </div>
                       
-                      <p className="text-sm text-blue-400 font-medium truncate mt-1">
+                      <p className="text-sm text-indigo-500 font-medium truncate mt-1">
                         {thread.taskTitle}
                       </p>
                       
                       {thread.lastMessage && (
-                        <p className="text-sm text-gray-400 truncate mt-1">
+                        <p className="text-sm text-gray-300 truncate mt-1">
                           {thread.lastMessage}
                         </p>
                       )}
                       
                       <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center space-x-1 text-xs text-gray-500">
+                        <div className="flex items-center space-x-1 text-xs text-indigo-400">
                           <Users className="h-3 w-3" />
                           <span>Task Chat</span>
                         </div>
                         
                         {thread.unreadCount > 0 && (
-                          <Badge variant="default" className="bg-blue-500 text-white">
+                          <Badge variant="default" className="bg-indigo-800 text-white hover:bg-indigo-700">
                             {thread.unreadCount}
                           </Badge>
                         )}
@@ -233,18 +233,18 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
             onClose={handleCloseChat}
           />
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-900 to-indigo-950">
             <div className="text-center">
               <div className="relative">
-                <MessageCircle className="h-20 w-20 text-gray-300 mx-auto mb-4" />
-                <div className="absolute -top-1 -right-1 h-6 w-6 bg-blue-500 rounded-full flex items-center justify-center">
+                <MessageCircle className="h-20 w-20 text-indigo-400 mx-auto mb-4" />
+                <div className="absolute -top-1 -right-1 h-6 w-6 bg-indigo-800 rounded-full flex items-center justify-center">
                   <span className="text-white text-xs font-bold">💬</span>
                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold text-white mb-2">
                 Welcome to your inbox
               </h3>
-              <p className="text-gray-600 max-w-sm">
+              <p className="text-indigo-300 max-w-sm">
                 Select a conversation from the sidebar to start chatting with task posters.
               </p>
             </div>
