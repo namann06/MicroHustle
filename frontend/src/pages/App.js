@@ -13,6 +13,7 @@ import useUnreadInboxCount from '../hooks/useUnreadInboxCount';
 import HustlerInbox from '../components/HustlerInbox';
 import PosterInbox from '../components/PosterInbox';
 import UserProfile from '../components/UserProfile';
+import { HeroHighlight, Highlight } from '../components/ui/hero-highlight';
 
 function App() {
   const [refreshInboxCount, setRefreshInboxCount] = useState(0);
@@ -77,13 +78,56 @@ function App() {
   const unreadInboxCount = useUnreadInboxCount(currentUser, refreshInboxCount);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-white dark:bg-black">
       {/* NavBar is now handled by Layout */}
       <div className="p-0 w-full">
         {page === 'home' && (
           <>
-            <Banner onSearch={setSearch} />
-            <TaskList currentUser={currentUser} search={search} />
+            <HeroHighlight containerClassName="min-h-screen">
+              <div className="text-center px-4">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-neutral-700 dark:text-white max-w-7xl leading-relaxed lg:leading-snug mx-auto">
+                  Find & Complete{' '}
+                  <Highlight className="text-black dark:text-white">
+                    Micro Tasks
+                  </Highlight>{' '}
+                  with Real Hustlers
+                </h1>
+                <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto mt-8 mb-12">
+                  Connect with skilled professionals, post tasks, and get things done. 
+                  Join our community of hustlers and posters today!
+                </p>
+                
+                {/* Search Form */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (search.trim()) {
+                      // Handle search logic here
+                    }
+                  }}
+                  className="flex w-full justify-center px-4 mb-16"
+                >
+                  <div className="flex w-full max-w-md mx-auto">
+                    <input
+                      type="text"
+                      placeholder="Search tasks..."
+                      className="rounded-l-full px-6 py-3 w-full text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 border border-r-0 border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                    />
+                    <button
+                      type="submit"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-r-full px-6 py-3 flex items-center justify-center transition-colors border border-indigo-600"
+                    >
+                      <span role="img" aria-label="search" className="text-lg">🔍</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </HeroHighlight>
+            <div className="bg-gray-50 dark:bg-neutral-900">
+              <TaskList currentUser={currentUser} search={search} />
+            </div>
           </>
         )}
         {page === 'post' && currentUser && currentUser.role === 'POSTER' && <PostTask currentUser={currentUser} />}
