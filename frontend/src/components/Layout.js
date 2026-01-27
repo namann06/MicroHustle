@@ -379,7 +379,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
         </MobileNav>
       </Navbar>
 
-      <main className="min-h-[calc(100vh-4rem)] pt-16">
+      <main className="min-h-[calc(100vh-4rem)]">
         {children}
       </main>
     </div>

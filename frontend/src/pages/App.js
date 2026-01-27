@@ -78,9 +78,8 @@ function App() {
   const unreadInboxCount = useUnreadInboxCount(currentUser, refreshInboxCount);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
+    <>
       {/* NavBar is now handled by Layout */}
-      <div className="p-0 w-full">
         {page === 'home' && (
           <>
             <HeroHighlight containerClassName="min-h-screen">
@@ -157,7 +156,6 @@ function App() {
         {page === 'login' && currentUser && <div className="text-green-700">Already logged in.</div>}
         {page === 'register' && !currentUser && <Register setCurrentUser={setCurrentUser} />}
         {page === 'register' && currentUser && <div className="text-green-700">Already logged in.</div>}
-      </div>
       {page === 'profile' && currentUser && (
         <div className="p-4">
           <UserProfile userId={currentUser.id} currentUser={currentUser} />
@@ -168,7 +166,7 @@ function App() {
           <UserProfile username={page.split(':')[1]} currentUser={currentUser} />
         </div>
       )}
-    </div>
+    </>
   );
 }
 
