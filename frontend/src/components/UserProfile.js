@@ -97,7 +97,7 @@ export default function UserProfile({ userId, username, onUsernameClick, current
   if (loading || !profile) return <div className="p-4">Loading profile...</div>;
 
   return (
-    <section className="profile_container">
+    <section className="profile_container mt-20">
       {/* Left Profile Card */}
       <div className="profile_card relative flex flex-col items-center justify-center bg-[#10172a] border-[5px] border-black rounded-[30px] shadow-2xl w-[300px] min-w-[260px] max-w-xs pb-8 pt-20 px-5 mx-auto">
         {/* Name badge */}
