@@ -116,48 +116,64 @@ export default function UserProfile({ userId, username, onUsernameClick, current
         <div className="w-full flex flex-col items-center">
         {/* Only allow editing if viewing own profile (by id or username) */}
         {currentUser && profile && ((userId && String(currentUser.id) === String(userId)) || (!userId && profile.username && currentUser.username === profile.username)) && editMode ? (
-          <>
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handlePicUpload}
-              className="mt-2"
-              disabled={uploading}
-            />
-            {uploadError && <div className="text-red-500 text-xs mt-1">{uploadError}</div>}
+          <div className="w-full flex flex-col items-center space-y-3 mt-4">
+            {/* File upload with styled button */}
+            <div className="w-full flex flex-col items-center">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="px-6 py-0.5 border-2 border-white uppercase bg-white text-black transition duration-200 text-sm shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)] flex items-center gap-2 font-medium"
+                disabled={uploading}
+              >
+                📷 {uploading ? 'Uploading...' : 'Change Photo'}
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handlePicUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+              {uploadError && <div className="text-red-400 text-xs mt-2 text-center">{uploadError}</div>}
+            </div>
+            
+            {/* Bio textarea */}
             <textarea
-              className="border rounded px-2 py-1 w-full mb-2 mt-2"
-              rows={2}
+              className="w-full bg-white border-2 border-white text-black placeholder-gray-500 resize-none focus:outline-none transition-all duration-200 px-3 py-2 shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)]"
+              rows={3}
               value={bio}
               onChange={e => setBio(e.target.value)}
               placeholder="Write something about yourself..."
             />
-            <div className="flex gap-2 w-full justify-center">
+            
+            {/* Action buttons */}
+            <div className="flex gap-3 w-full justify-center">
               <button
-                className="bg-green-600 text-white px-3 py-1 rounded"
+                className="px-6 py-0.5 border-2 border-white uppercase bg-green-600 text-white transition duration-200 text-sm shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)] disabled:opacity-50 font-medium"
                 onClick={handleSave}
                 disabled={saving}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>
-              <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => setEditMode(false)}>Cancel</button>
+              <button 
+                className="px-6 py-0.5 border-2 border-white uppercase bg-white text-black transition duration-200 text-sm shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)] font-medium" 
+                onClick={() => setEditMode(false)}
+              >
+                Cancel
+              </button>
             </div>
-            {saveError && <div className="text-red-500 text-xs mt-1">{saveError}</div>}
-          </>
+            {saveError && <div className="text-red-400 text-xs text-center">{saveError}</div>}
+          </div>
         ) : (
           <>
-            <div className="text-white text-center mb-2 min-h-[32px]">{profile.bio || <span className="italic text-gray-300">No bio yet.</span>}</div>
+            <div className="text-white text-center mb-4 min-h-[32px] px-2">{profile.bio || <span className="italic text-gray-300">No bio yet.</span>}</div>
             {currentUser && profile && ((userId && String(currentUser.id) === String(userId)) || (!userId && profile.username && currentUser.username === profile.username)) && (
-              <button
-                className="mt-2 bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition border border-black"
+              <button 
+                className="px-8 py-0.5 border-2 border-black dark:border-white uppercase bg-white text-black transition duration-200 text-sm shadow-[1px_1px_rgba(0,0,0),2px_2px_rgba(0,0,0),3px_3px_rgba(0,0,0),4px_4px_rgba(0,0,0),5px_5px_0px_0px_rgba(0,0,0)] dark:shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)]"
                 onClick={() => setEditMode(true)}
               >
                 Edit Profile
               </button>
-            )}
-            {userId && (
-              <button className="bg-white text-black font-semibold px-3 py-1 rounded text-sm shadow hover:bg-gray-100 transition" onClick={() => setEditMode(true)}>Edit Profile</button>
             )}
           </>
         )}
