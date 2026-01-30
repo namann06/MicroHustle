@@ -58,15 +58,23 @@ export default function UserProfile({ userId, username, onUsernameClick, current
       if (!file) throw new Error('No file selected');
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('http://localhost:8080/api/upload', {
+      console.log('[DEBUG] Uploading file:', file.name);
+      const res = await fetch('http://localhost:8080/api/files/upload', {
         method: 'POST',
         body: formData
       });
-      if (!res.ok) throw new Error('Profile picture upload failed');
+      console.log('[DEBUG] Upload response status:', res.status);
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('[ERROR] Upload failed:', errorText);
+        throw new Error('Profile picture upload failed');
+      }
       let url = await res.text();
       if (url.startsWith('"') && url.endsWith('"')) url = url.substring(1, url.length - 1);
+      console.log('[DEBUG] Uploaded file URL:', url);
       setProfilePicUrl(url);
     } catch (err) {
+      console.error('[ERROR] handlePicUpload:', err);
       setUploadError(err.message);
     } finally {
       setUploading(false);

@@ -109,11 +109,17 @@ function MainRouter() {
     console.log('MainRouter useEffect - Loading user from localStorage');
     const saved = localStorage.getItem('currentUser');
     if (saved) {
-      const user = JSON.parse(saved);
-      console.log('MainRouter - Loaded user from localStorage:', user);
-      setCurrentUser(user);
+      try {
+        const user = JSON.parse(saved);
+        console.log('MainRouter - Loaded user from localStorage:', user);
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('MainRouter - Error parsing user from localStorage:', error);
+        setCurrentUser(null);
+      }
     } else {
       console.log('MainRouter - No user found in localStorage');
+      setCurrentUser(null);
     }
   }, []);
 
