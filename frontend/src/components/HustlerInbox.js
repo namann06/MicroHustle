@@ -5,6 +5,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
   const [threads, setThreads] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatProps, setChatProps] = useState(null);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'HUSTLER') return;
@@ -20,6 +21,40 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
     return fetch(`http://localhost:8080/api/messages/mark-thread-read-hustler?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
       method: 'POST'
     });
+  };
+
+  const handleFileUpload = async (thread) => {
+    if (!file) {
+      console.error("No file selected for upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("taskId", thread.taskId);
+    formData.append("posterId", thread.posterId);
+    formData.append("hustlerId", currentUser.id);
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/messages/upload-file`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) {
+        console.error("File upload failed:", response.statusText);
+        return;
+      }
+
+      console.log("File uploaded successfully.");
+
+      // Refresh threads after upload
+      const inboxResponse = await fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`);
+      const data = await inboxResponse.json();
+      setThreads(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error during file upload:", error);
+    }
   };
 
   const openChat = (thread) => {
@@ -52,6 +87,17 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
                   From: {thread.posterUsername}
                 </div>
                 <div className="text-gray-400 text-xs">Unread: {thread.unreadCount}</div>
+                <input
+                  type="file"
+                  onChange={(e) => setFile(e.target.files[0])}
+                  className="text-gray-400 text-xs mt-2"
+                />
+                <button
+                  onClick={() => handleFileUpload(thread)}
+                  className="bg-blue-500 text-white px-2 py-1 rounded mt-2"
+                >
+                  Upload File
+                </button>
               </li>
             ))}
           </ul>

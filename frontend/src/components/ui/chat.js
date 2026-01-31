@@ -13,8 +13,10 @@ const ChatForm = React.forwardRef(({
   const onSubmit = (event) => {
     event.preventDefault()
     if (handleSubmit) {
-      handleSubmit(event)
+      handleSubmit(event, files)
     }
+    // Clear files after sending
+    setFiles([])
   }
 
   return (

@@ -56,7 +56,7 @@ const MessageInput = React.forwardRef(({
     adjustTextareaHeight()
   }, [value])
 
-  const hasContent = value.trim()
+  const hasContent = value.trim() || (files && files.length > 0)
 
   return (
     <div className={cn("p-4 bg-black", className)}>

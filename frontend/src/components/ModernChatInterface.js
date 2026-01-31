@@ -107,27 +107,56 @@ export default function ModernChatInterface({
     }, 1000);
   };
 
-  const handleSend = async (event) => {
+  const handleSend = async (event, files = []) => {
     event?.preventDefault?.();
-    if (!input.trim()) return;
+    if (!input.trim() && (!files || files.length === 0)) return;
     setIsGenerating(true);
-    const formData = new URLSearchParams();
-    formData.append('senderId', currentUser.id);
-    formData.append('recipientId', otherUser.id);
-    formData.append('taskId', task.id);
-    formData.append('content', input);
-    // attachmentUrl is optional and not used here
+    
     try {
+      let attachmentUrl = null;
+      
+      // If there are files, upload them first
+      if (files && files.length > 0) {
+        const file = files[0]; // For now, handle one file at a time
+        const fileFormData = new FormData();
+        fileFormData.append('file', file);
+        
+        console.log('Uploading file:', file.name);
+        const uploadResponse = await fetch('http://localhost:8080/api/files/upload', {
+          method: 'POST',
+          body: fileFormData
+        });
+        
+        if (uploadResponse.ok) {
+          attachmentUrl = await uploadResponse.text();
+          console.log('File uploaded successfully:', attachmentUrl);
+        } else {
+          throw new Error('File upload failed');
+        }
+      }
+      
+      // Send the message with optional attachment
+      const formData = new URLSearchParams();
+      formData.append('senderId', currentUser.id);
+      formData.append('recipientId', otherUser.id);
+      formData.append('taskId', task.id);
+      formData.append('content', input || ''); // Allow empty content if there's an attachment
+      if (attachmentUrl) {
+        formData.append('attachmentUrl', attachmentUrl);
+      }
+      
       console.log('Sending message:', Object.fromEntries(formData));
       await fetch('http://localhost:8080/api/messages/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
       });
+      
       setInput("");
       sendTypingIndicator(false);
     } catch (error) {
       console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -200,18 +229,18 @@ export default function ModernChatInterface({
                       {renderMessageContent(msg.content)}
                     </div>
                   )}
-                  {msg.filename && (
+                  {msg.attachmentUrl && (
                     <div className="mt-2">
-                      {isImage(msg.filename) ? (
+                      {isImage(msg.attachmentUrl) ? (
                         <img
-                          src={`http://localhost:8080/api/messages/file/${msg.filename}`}
-                          alt={msg.filename}
+                          src={`http://localhost:8080${msg.attachmentUrl}`}
+                          alt="Attachment"
                           className="max-w-full h-auto rounded-lg cursor-pointer shadow-md"
-                          onClick={() => window.open(`http://localhost:8080/api/messages/file/${msg.filename}`, '_blank')}
+                          onClick={() => window.open(`http://localhost:8080${msg.attachmentUrl}`, '_blank')}
                         />
                       ) : (
                         <a
-                          href={`http://localhost:8080/api/messages/file/${msg.filename}`}
+                          href={`http://localhost:8080${msg.attachmentUrl}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`inline-flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
@@ -221,7 +250,7 @@ export default function ModernChatInterface({
                           <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                           </svg>
-                          {getFileTypeLabel(msg.filename)}
+                          {getFileTypeLabel(msg.attachmentUrl)}
                         </a>
                       )}
                     </div>
@@ -260,7 +289,7 @@ export default function ModernChatInterface({
         <ChatForm
           className="w-full"
           isPending={isGenerating}
-          handleSubmit={handleSend}
+          handleSubmit={(event, formFiles) => handleSend(event, formFiles)}
         >
           {({ files: formFiles, setFiles: setFormFiles }) => (
             <MessageInput
