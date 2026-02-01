@@ -2,6 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global layout fixes */
+body {
+  overflow-x: hidden;
+}
+
+/* Ensure proper navbar positioning */
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* Main content padding to account for fixed navbar */
+.main-content {
+  padding-top: 80px;
+}
+
+/* Responsive navbar fixes */
+@media (max-width: 1024px) {
+  .main-content {
+    padding-top: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 60px;
+  }
+}
+
 /* 3D Card Styles */
 .perspective-1000 {
   perspective: 1000px;
@@ -46,25 +78,60 @@
 }
 
 .task-list_card {
-  @apply bg-gray-200 border-[5px] border-black py-6 px-5 rounded-[22px] shadow-2xl hover:border-yellow-400 transition-all duration-500 hover:shadow-2xl hover:bg-yellow-50;
+  background-color: #e5e7eb;
+  border: 5px solid black;
+  padding: 1.5rem 1.25rem;
+  border-radius: 22px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transition: all 0.5s ease;
+}
+
+.task-list_card:hover {
+  border-color: #facc15;
+  background-color: #fefce8;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .task-list_date {
-  @apply font-medium text-[16px] bg-yellow-50 px-4 py-2 rounded-full group-hover:bg-white;
+  font-weight: 500;
+  font-size: 16px;
+  background-color: #fefce8;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+}
+
+.group:hover .task-list_date {
+  background-color: white;
 }
 
 .task-list_desc {
-  @apply font-normal text-[16px] line-clamp-2 my-3 text-gray-700 break-all;
+  font-weight: 400;
+  font-size: 16px;
+  line-clamp: 2;
+  margin: 0.75rem 0;
+  color: #374151;
+  word-break: break-all;
 }
 
 .task-list_img {
-  @apply w-full h-[164px] rounded-[10px] object-cover;
+  width: 100%;
+  height: 164px;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 .task-list_btn {
-  @apply rounded-full bg-gray-900 font-medium text-[16px] text-white px-5 py-3;
+  border-radius: 9999px;
+  background-color: #111827;
+  font-weight: 500;
+  font-size: 16px;
+  color: white;
+  padding: 0.75rem 1.25rem;
 }
 
 .task-list_skeleton {
-  @apply w-full h-96 rounded-[22px] bg-zinc-400;
+  width: 100%;
+  height: 24rem;
+  border-radius: 22px;
+  background-color: #a1a1aa;
 }

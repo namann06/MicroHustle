@@ -24,7 +24,7 @@ const Navbar = ({ children, className, ...props }) => {
   return (
     <motion.div
       ref={ref}
-      className={cn("sticky inset-x-0 top-0 z-40 w-full", className)}
+      className={cn("fixed inset-x-0 top-0 z-50 w-full", className)}
       {...props}
     >
       {React.Children.map(children, (child) =>
@@ -40,13 +40,10 @@ const NavBody = ({ children, className, visible, ...props }) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(10px)" : "none",
-        boxShadow: visible
-          ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
-          : "none",
-        width: visible ? "40%" : "100%",
-        minWidth: visible ? "320px" : "100%", // allow shrinking below 800px
-        y: visible ? 20 : 0,
+        backdropFilter: "none",
+        boxShadow: "none",
+        width: "100%", // Keep full width to prevent overlapping
+        y: visible ? 0 : 0, // Remove vertical shift to prevent layout issues
       }}
       transition={{
         type: "spring",
@@ -54,8 +51,8 @@ const NavBody = ({ children, className, visible, ...props }) => {
         damping: 50,
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-transparent px-4 py-2 lg:flex dark:bg-transparent",
-        visible && "bg-white/80 dark:bg-neutral-950/80",
+        "relative z-[70] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full px-4 py-3 lg:flex",
+        "bg-transparent dark:bg-transparent",
         className
       )}
       {...props}
@@ -72,13 +69,13 @@ const NavItems = ({ items, className, ...props }) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center gap-6 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex",
+        "absolute inset-0 hidden flex-1 flex-row items-center justify-center gap-4 text-sm font-medium text-zinc-600 transition duration-200 hover:text-zinc-800 lg:flex overflow-hidden",
         className
       )}
       {...props}
     >
       {items.map((item, idx) => (
-        <div key={`nav-item-container-${idx}`} className="relative inline-block">
+        <div key={`nav-item-container-${idx}`} className="relative inline-block flex-shrink-0">
           <button
             onMouseEnter={() => setHovered(idx)}
             onClick={(e) => {
@@ -88,7 +85,7 @@ const NavItems = ({ items, className, ...props }) => {
               }
             }}
             className={cn(
-              "relative px-4 py-2 text-neutral-600 dark:text-neutral-300 cursor-pointer border-none bg-transparent transition-colors duration-200",
+              "relative px-4 py-2.5 text-gray-800 dark:text-white cursor-pointer border-none bg-transparent transition-all duration-200 whitespace-nowrap font-semibold hover:text-indigo-600 dark:hover:text-indigo-400",
               item.badge ? "pr-8" : ""
             )}
             key={`link-${idx}`}
@@ -96,7 +93,7 @@ const NavItems = ({ items, className, ...props }) => {
             {hovered === idx && (
               <motion.div
                 layoutId="hovered"
-                className="absolute inset-0 h-full w-full rounded-full bg-gray-100 dark:bg-neutral-800" />
+                className="absolute inset-0 h-full w-full rounded-lg bg-indigo-100 dark:bg-indigo-900/30 shadow-lg" />
             )}
             <span className="relative z-20">{item.name}</span>
           </button>
@@ -115,15 +112,13 @@ const MobileNav = ({ children, className, visible, ...props }) => {
   return (
     <motion.div
       animate={{
-        backdropFilter: visible ? "blur(10px)" : "none",
-        boxShadow: visible
-          ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
-          : "none",
-        width: visible ? "90%" : "100%",
-        paddingRight: visible ? "12px" : "0px",
-        paddingLeft: visible ? "12px" : "0px",
-        borderRadius: visible ? "4px" : "2rem",
-        y: visible ? 20 : 0,
+        backdropFilter: "none",
+        boxShadow: "none",
+        width: "100%", // Keep full width on mobile
+        paddingRight: "16px",
+        paddingLeft: "16px",
+        borderRadius: "0px",
+        y: visible ? 0 : 0, // Remove vertical shift
       }}
       transition={{
         type: "spring",
@@ -131,8 +126,8 @@ const MobileNav = ({ children, className, visible, ...props }) => {
         damping: 50,
       }}
       className={cn(
-        "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-transparent px-0 py-2 lg:hidden",
-        visible && "bg-white/80 dark:bg-neutral-950/80",
+        "relative z-60 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between px-4 py-3 lg:hidden",
+        "bg-transparent dark:bg-transparent",
         className
       )}
       {...props}
@@ -162,7 +157,7 @@ const MobileNavMenu = ({ children, className, isOpen, onClose, ...props }) => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           className={cn(
-            "absolute left-0 right-0 top-full z-50 mt-2 w-full rounded-lg bg-white p-4 shadow-lg dark:bg-neutral-950",
+            "absolute left-0 right-0 top-full z-[80] mt-2 w-full rounded-lg bg-white p-4 shadow-lg dark:bg-neutral-950 max-h-[70vh] overflow-y-auto",
             className
           )}
           {...props}
@@ -183,13 +178,13 @@ const NavbarButton = ({
   ...props
 }) => {
   const baseStyles =
-    "px-4 py-2 rounded-md bg-white text-sm font-medium relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center";
+    "px-5 py-2.5 rounded-lg text-sm font-semibold relative cursor-pointer hover:-translate-y-0.5 transition-all duration-200 inline-block text-center shadow-lg";
 
   const variantStyles = {
     primary:
-      "shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset] text-black",
-    secondary: "bg-transparent shadow-none dark:text-white",
-    dark: "bg-black text-white shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]",
+      "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-indigo-500/25 hover:shadow-indigo-500/40",
+    secondary: "bg-white/90 text-gray-800 hover:bg-white hover:text-gray-900 shadow-black/10 border border-gray-200",
+    dark: "bg-gray-900 text-white hover:bg-black shadow-black/30 border border-gray-700",
   };
 
   return (
@@ -233,9 +228,9 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
         <NavBody>
           <button 
             onClick={() => navigate('/')} 
-            className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer"
+            className="relative z-20 flex items-center space-x-2 px-3 py-2 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer hover:scale-105 transition-transform duration-200"
           >
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MicroHustle</span>
+            <span className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">MicroHustle</span>
           </button>
           
           <NavItems 
@@ -294,12 +289,12 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
           <MobileNavHeader>
             <button 
               onClick={() => navigate('/')} 
-              className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer"
+              className="relative z-20 flex items-center space-x-2 px-3 py-2 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer hover:scale-105 transition-transform duration-200"
             >
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MicroHustle</span>
+              <span className="text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">MicroHustle</span>
             </button>
             <button 
-              className="p-2 text-gray-700 dark:text-gray-300"
+              className="p-2 text-gray-800 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}

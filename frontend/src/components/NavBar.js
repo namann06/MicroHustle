@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 function NavBar({ currentUser, onLogout, unreadNotificationCount, unreadInboxCount }) {
   const navigate = useNavigate();
   return (
-    <nav className="bg-white shadow p-4 flex items-center gap-6">
+    <nav className="bg-white shadow p-4 flex items-center gap-6 relative z-50 w-full flex-wrap">
       <button className="font-bold hover:text-yellow-500 transition-colors" onClick={() => navigate('/')}>Home</button>
       {currentUser && currentUser.role === 'POSTER' && (
         <>

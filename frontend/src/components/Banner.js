@@ -10,8 +10,8 @@ function Banner({ onSearch }) {
 
   return (
     <div
-    className="w-full min-h-screen flex flex-col items-center justify-center overflow-hidden p-0 m-0"
-    style={{ background: '#101828' }}
+    className="w-full h-screen flex flex-col items-center justify-center overflow-hidden p-0 m-0"
+    style={{ background: '#101828', marginTop: '-80px', paddingTop: '80px' }}
   >
     {/* Full-screen vertical yellow lines */}
     <div
