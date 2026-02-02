@@ -5,6 +5,7 @@
 /* Global layout fixes */
 body {
   overflow-x: hidden;
+  background: #181818;
 }
 
 /* Ensure proper navbar positioning */
