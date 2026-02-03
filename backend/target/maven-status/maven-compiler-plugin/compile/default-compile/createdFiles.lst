@@ -23,7 +23,6 @@ com\microhustle\model\Offer.class
 com\microhustle\repository\OfferRepository.class
 com\microhustle\repository\NotificationRepository.class
 com\microhustle\service\NotificationWebSocketService.class
-com\microhustle\model\Offer$OfferBuilder.class
 com\microhustle\model\Message.class
 com\microhustle\config\SimpleCorsFilter.class
 com\microhustle\repository\TaskRepository.class

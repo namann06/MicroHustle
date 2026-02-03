@@ -163,10 +163,47 @@ export default function ModernChatInterface({
   };
 
   const formatTime = (timestamp) => {
+    if (!timestamp) return '';
     return new Date(timestamp).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+  };
+
+  const groupMessagesByDate = (messages) => {
+    const groups = {};
+    messages.forEach(msg => {
+      const timestamp = msg.sentAt || msg.timestamp;
+      if (!timestamp) return;
+      
+      const date = new Date(timestamp).toDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(msg);
+    });
+    return groups;
   };
 
   const getInitials = (username) => {
@@ -199,79 +236,99 @@ export default function ModernChatInterface({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 messages-scroll bg-black">
-        {messages.map((msg, index) => {
-          const isOwn = msg.sender && msg.sender.id === currentUser.id;
-          const prevMsg = messages[index - 1];
-          const showUserName = index === 0 || (prevMsg && prevMsg.sender && prevMsg.sender.id !== (msg.sender && msg.sender.id));
-          return (
-            <div
-              key={index}
-              className={`flex flex-col message-enter ${isOwn ? 'items-end' : 'items-start'}`}
-            >
-              {/* Show username for message groups */}
-              {showUserName && (
-                <div className={`text-sm text-gray-400 mb-2 px-1 ${isOwn ? 'text-right' : 'text-left'}`}>
-                  {isOwn ? currentUser.username : otherUser.username}
-                </div>
-              )}
-              <div className={`max-w-xs lg:max-w-md xl:max-w-lg ${showUserName ? '' : 'mt-1'} flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <div
-                  className={`px-4 py-3 rounded-2xl text-sm shadow-md ${
-                    isOwn
-                      ? 'bg-gradient-to-br from-gray-200 to-white text-black ml-auto'
-                      : 'bg-gradient-to-br from-gray-700 to-gray-900 text-white mr-auto'
-                  }`}
-                  style={{ minWidth: '60px', wordBreak: 'break-word' }}
-                >
-                  {msg.content && (
-                    <div>
-                      {renderMessageContent(msg.content)}
-                    </div>
-                  )}
-                  {msg.attachmentUrl && (
-                    <div className="mt-2">
-                      {isImage(msg.attachmentUrl) ? (
-                        <img
-                          src={`http://localhost:8080${msg.attachmentUrl}`}
-                          alt="Attachment"
-                          className="max-w-full h-auto rounded-lg cursor-pointer shadow-md"
-                          onClick={() => window.open(`http://localhost:8080${msg.attachmentUrl}`, '_blank')}
-                        />
-                      ) : (
-                        <a
-                          href={`http://localhost:8080${msg.attachmentUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`inline-flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
-                            isOwn ? 'bg-gray-100 hover:bg-gray-200 text-black' : 'bg-gray-700 hover:bg-gray-600'
-                          }`}
-                        >
-                          <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                          </svg>
-                          {getFileTypeLabel(msg.attachmentUrl)}
-                        </a>
-                      )}
-                    </div>
-                  )}
-                  <div className={`text-xs mt-1 px-1 text-gray-400 ${isOwn ? 'text-right' : 'text-left'}`}>{formatTime(msg.timestamp)}</div>
-                </div>
+      <div className="flex-1 overflow-y-auto p-6 space-y-2 messages-scroll bg-black">
+        {Object.entries(groupMessagesByDate(messages)).map(([dateString, dayMessages]) => (
+          <div key={dateString} className="message-group">
+            {/* Date Header */}
+            <div className="flex justify-center my-4">
+              <div className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-xs font-medium">
+                {formatDate(dayMessages[0].sentAt || dayMessages[0].timestamp)}
               </div>
             </div>
-          );
-        })}
-        
-        {otherTyping && (
-          <div className="flex items-start space-x-3 message-enter">
-            <div className="text-sm text-gray-400 mb-2 px-1">
-              {otherUser.username}
+            
+            {/* Messages for this date */}
+            <div className="space-y-2">
+              {dayMessages.map((msg, index) => {
+                const isOwn = msg.sender && msg.sender.id === currentUser.id;
+                const prevMsg = dayMessages[index - 1];
+                const nextMsg = dayMessages[index + 1];
+                const showUserName = index === 0 || (prevMsg && prevMsg.sender && prevMsg.sender.id !== (msg.sender && msg.sender.id));
+                const isLastInGroup = !nextMsg || (nextMsg.sender && nextMsg.sender.id !== (msg.sender && msg.sender.id));
+                const timestamp = msg.sentAt || msg.timestamp;
+                
+                return (
+                  <div
+                    key={`${dateString}-${index}`}
+                    className={`flex flex-col message-enter ${isOwn ? 'items-end' : 'items-start'}`}
+                  >
+                    {/* Show username for message groups */}
+                    {showUserName && !isOwn && (
+                      <div className="text-sm text-gray-400 mb-1 px-1">
+                        {otherUser.username}
+                      </div>
+                    )}
+                    <div className={`max-w-xs lg:max-w-md xl:max-w-lg ${showUserName ? '' : 'mt-1'} flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                      <div
+                        className={`px-4 py-2 text-sm shadow-md relative ${
+                          isOwn
+                            ? `bg-gradient-to-br from-blue-500 to-blue-600 text-white ml-auto ${
+                                isLastInGroup ? 'rounded-2xl rounded-br-md' : 'rounded-2xl rounded-br-lg'
+                              }`
+                            : `bg-gradient-to-br from-gray-700 to-gray-800 text-white mr-auto ${
+                                isLastInGroup ? 'rounded-2xl rounded-bl-md' : 'rounded-2xl rounded-bl-lg'
+                              }`
+                        }`}
+                        style={{ minWidth: '60px', wordBreak: 'break-word' }}
+                      >
+                        {msg.content && (
+                          <div className="mb-1">
+                            {renderMessageContent(msg.content)}
+                          </div>
+                        )}
+                        {msg.attachmentUrl && (
+                          <div className="mt-2">
+                            {isImage(msg.attachmentUrl) ? (
+                              <img
+                                src={`http://localhost:8080${msg.attachmentUrl}`}
+                                alt="Attachment"
+                                className="max-w-full h-auto rounded-lg cursor-pointer shadow-md"
+                                onClick={() => window.open(`http://localhost:8080${msg.attachmentUrl}`, '_blank')}
+                              />
+                            ) : (
+                              <a
+                                href={`http://localhost:8080${msg.attachmentUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`inline-flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
+                                  isOwn ? 'bg-blue-400 hover:bg-blue-300 text-white' : 'bg-gray-600 hover:bg-gray-500'
+                                }`}
+                              >
+                                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                                {getFileTypeLabel(msg.attachmentUrl)}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        <div className={`text-xs mt-1 opacity-70 ${isOwn ? 'text-right text-blue-100' : 'text-left text-gray-300'}`}>
+                          {formatTime(timestamp)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
+        ))}
+        
         {otherTyping && (
-          <div className="flex items-start">
-            <div className="bg-gray-800 px-4 py-3 rounded-2xl max-w-xs">
+          <div className="flex flex-col items-start space-y-2 message-enter">
+            <div className="text-sm text-gray-400 mb-1 px-1">
+              {otherUser.username}
+            </div>
+            <div className="bg-gray-800 px-4 py-3 rounded-2xl rounded-bl-md max-w-xs">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>

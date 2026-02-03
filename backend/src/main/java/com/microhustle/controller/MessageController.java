@@ -92,7 +92,15 @@ public class MessageController {
                 thread.posterId = posterId;
                 thread.posterUsername = poster.getUsername();
                 thread.unreadCount = 0;
+                thread.lastMessage = msg.getContent();
+                thread.lastMessageTime = msg.getSentAt();
                 threads.put(key, thread);
+            } else {
+                // Update with newer message info if this message is newer
+                if (msg.getSentAt() != null && (thread.lastMessageTime == null || msg.getSentAt().isAfter(thread.lastMessageTime))) {
+                    thread.lastMessage = msg.getContent();
+                    thread.lastMessageTime = msg.getSentAt();
+                }
             }
             // Count unread messages for this hustler
             if (!msg.isRead() && msg.getRecipient() != null && msg.getRecipient().getId().equals(userId)) {
@@ -131,7 +139,15 @@ public class MessageController {
                 thread.hustlerId = hustler.getId();
                 thread.hustlerUsername = hustler.getUsername();
                 thread.unreadCount = 0;
+                thread.lastMessage = msg.getContent();
+                thread.lastMessageTime = msg.getSentAt();
                 threads.put(key, thread);
+            } else {
+                // Update with newer message info if this message is newer
+                if (msg.getSentAt() != null && (thread.lastMessageTime == null || msg.getSentAt().isAfter(thread.lastMessageTime))) {
+                    thread.lastMessage = msg.getContent();
+                    thread.lastMessageTime = msg.getSentAt();
+                }
             }
             // Count unread messages for this poster
             if (!msg.isRead() && msg.getRecipient() != null && msg.getRecipient().getId().equals(userId)) {
@@ -147,6 +163,8 @@ public class MessageController {
         public Long hustlerId;
         public String hustlerUsername;
         public int unreadCount;
+        public String lastMessage;
+        public java.time.LocalDateTime lastMessageTime;
     }
 
     // Mark all messages in a thread as read for the poster
@@ -201,6 +219,8 @@ public class MessageController {
         public Long posterId;
         public String posterUsername;
         public int unreadCount;
+        public String lastMessage;
+        public java.time.LocalDateTime lastMessageTime;
     }
 
     // Fetch all messages for a task
