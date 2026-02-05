@@ -18,6 +18,7 @@ import { LandingPage } from './LandingPage';
 import BrowseTasksPage from './BrowseTasksPage';
 
 function AppContent({ setCurrentUser, currentUser }) {
+  // Always call the hook, but it will return 0 for non-POSTER users internally
   const unreadNotificationCount = useUnreadNotifications(currentUser);
   const [inboxUpdateTrigger, setInboxUpdateTrigger] = useState(0);
   const unreadInboxCount = useUnreadInboxCount(currentUser, inboxUpdateTrigger);
@@ -69,6 +70,10 @@ function AppContent({ setCurrentUser, currentUser }) {
     { path: "/hustlerTasks", element: <HustlerTasks currentUser={currentUser} /> },
     { path: "/posterInbox", element: <ModernPosterInbox currentUser={currentUser} onInboxRead={handleInboxRead} /> },
     { path: "/hustlerInbox", element: <ModernHustlerInbox currentUser={currentUser} onInboxRead={handleInboxRead} /> },
+  ];
+
+  // Notifications route only for POSTER users
+  const posterOnlyRoutes = [
     { path: "/notifications", element: <Notifications currentUser={currentUser} /> },
   ];
 
@@ -89,6 +94,19 @@ function AppContent({ setCurrentUser, currentUser }) {
         {protectedRoutes.map((route, index) => (
           <Route 
             key={`protected-${index}`} 
+            path={route.path} 
+            element={
+              <ProtectedRoute>
+                {route.element}
+              </ProtectedRoute>
+            } 
+          />
+        ))}
+
+        {/* Poster-only routes */}
+        {currentUser?.role === 'POSTER' && posterOnlyRoutes.map((route, index) => (
+          <Route 
+            key={`poster-${index}`} 
             path={route.path} 
             element={
               <ProtectedRoute>

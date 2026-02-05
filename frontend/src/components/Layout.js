@@ -214,7 +214,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
       onClick: () => navigate(currentUser?.role === 'POSTER' ? '/posterInbox' : '/hustlerInbox'), 
       badge: unreadInboxCount > 0 ? unreadInboxCount : null 
     },
-    currentUser && { 
+    currentUser?.role === 'POSTER' && { 
       name: 'Notifications', 
       link: '/notifications', 
       onClick: () => navigate('/notifications'), 

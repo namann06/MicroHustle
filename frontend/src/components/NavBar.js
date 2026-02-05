@@ -38,12 +38,12 @@ function NavBar({ currentUser, onLogout, unreadNotificationCount, unreadInboxCou
           </div>
         </>
       )}
-      {currentUser && (
+      {currentUser && currentUser.role === 'POSTER' && (
         <div className="relative inline-block">
           <button className="hover:text-yellow-500 transition-colors text-2xl pr-4" onClick={() => navigate('/notifications')} title="Updates">
             <span role="img" aria-label="bell">🔔</span>
           </button>
-          {currentUser.role === 'POSTER' && unreadNotificationCount > 0 && (
+          {unreadNotificationCount > 0 && (
             <span className="absolute -top-1 -right-0 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
               {unreadNotificationCount}
             </span>
