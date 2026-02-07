@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
 
 export default function UserProfile({ userId, username, onUsernameClick, currentUser }) {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [ratings, setRatings] = useState(null);
@@ -240,8 +242,12 @@ export default function UserProfile({ userId, username, onUsernameClick, current
                         <p 
                           className="text-sm font-medium text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline truncate"
                           onClick={() => {
-                            if(onUsernameClick) onUsernameClick(r.poster.username);
-                            else window.dispatchEvent(new CustomEvent('viewPublicProfile', { detail: { username: r.poster.username } }));
+                            if(onUsernameClick) {
+                              onUsernameClick(r.poster.username);
+                            } else {
+                              // Use React Router navigation for proper route handling
+                              navigate(`/profile/${encodeURIComponent(r.poster.username)}`);
+                            }
                           }}
                         >
                           @{r.poster.username}
