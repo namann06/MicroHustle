@@ -42,6 +42,28 @@ export default function UserProfile({ userId, username, onUsernameClick, current
         } else if (data.role === "POSTER") {
           fetch(`${base}/api/users/${data.id}/poster-tasks`)            .then(res => res.json())
             .then(setTasks);
+          
+          // Fetch reviews given by this poster
+          fetch(`${base}/api/ratings/poster/${data.id}`)
+            .then(res => {
+              if (res.ok) {
+                return res.json();
+              } else {
+                console.log('Poster ratings endpoint returned:', res.status);
+                return [];
+              }
+            })
+            .then(ratingsArray => {
+              console.log('Poster ratings data:', ratingsArray);
+              // Transform the data to match the expected structure
+              setRatings({ 
+                ratings: Array.isArray(ratingsArray) ? ratingsArray : []
+              });
+            })
+            .catch(err => {
+              console.log('Failed to fetch poster ratings:', err);
+              setRatings({ ratings: [] });
+            });
         }
       })
       .catch(err => {
@@ -195,9 +217,10 @@ export default function UserProfile({ userId, username, onUsernameClick, current
 
         {/* Right: Ratings & Reviews */}
         <div className="lg:w-2/3">
+          {/* Reviews for Hustlers (reviews received) */}
           {profile.role === "HUSTLER" && ratings && ratings.ratings.length > 0 && (
             <div className="mb-4">
-              <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Ratings & Reviews</h2>
+              <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Ratings & Reviews Received</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {ratings.ratings.map(r => (
                   <div key={r.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-xl transition-shadow duration-300">
@@ -257,6 +280,84 @@ export default function UserProfile({ userId, username, onUsernameClick, current
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Reviews for Posters (reviews given by posters) */}
+          {profile.role === "POSTER" && (
+            <div className="mb-4">
+              <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Reviews Given</h2>
+              {ratings && ratings.ratings && ratings.ratings.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {ratings.ratings.map(r => (
+                    <div key={r.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-xl transition-shadow duration-300">
+                      {/* Header with rating and date */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-yellow-400 text-lg">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                          <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                            {r.rating}/5
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {new Date(r.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </div>
+
+                      {/* Task title */}
+                      <h3 className="text-lg font-bold mb-2 text-gray-800 dark:text-white line-clamp-1">
+                        {r.task.title}
+                      </h3>
+
+                      {/* Review comment */}
+                      {r.comment && (
+                        <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-2">
+                          "{r.comment}"
+                        </p>
+                      )}
+
+                      {/* Hustler info (who received the review) */}
+                      <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                        <img
+                          src={`https://ui-avatars.com/api/?name=${r.hustler.username}&background=random`}
+                          alt={r.hustler.username}
+                          className="rounded-full w-6 h-6 object-cover border-2 border-white"
+                        />
+                        <div className="overflow-hidden">
+                          <p className="text-xs text-gray-400">Review for</p>
+                          <p 
+                            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 cursor-pointer hover:underline truncate"
+                            onClick={() => {
+                              if(onUsernameClick) {
+                                onUsernameClick(r.hustler.username);
+                              } else {
+                                // Use React Router navigation for proper route handling
+                                navigate(`/profile/${encodeURIComponent(r.hustler.username)}`);
+                              }
+                            }}
+                          >
+                            @{r.hustler.username}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+                  <div className="text-gray-400 dark:text-gray-500">
+                    <svg className="mx-auto h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                    </svg>
+                    <p className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-2">No reviews given yet</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Reviews will appear here once you've completed and rated tasks.</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

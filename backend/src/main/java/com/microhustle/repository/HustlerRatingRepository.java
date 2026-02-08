@@ -10,6 +10,7 @@ import java.util.List;
 public interface HustlerRatingRepository extends JpaRepository<HustlerRating, Long> {
     List<HustlerRating> findByHustler(User hustler);
     List<HustlerRating> findByHustlerId(Long hustlerId);
+    List<HustlerRating> findByPosterId(Long posterId);
     List<HustlerRating> findByTask(Task task);
     @Query("SELECT AVG(r.rating) FROM HustlerRating r WHERE r.hustler.id = :hustlerId")
     Double findAverageRatingByHustlerId(Long hustlerId);

@@ -66,4 +66,10 @@ public class HustlerRatingController {
         Double avg = ratingRepo.findAverageRatingByHustlerId(hustlerId);
         return avg != null ? avg : 0.0;
     }
+
+    // Get all ratings given by a poster
+    @GetMapping("/poster/{posterId}")
+    public List<HustlerRating> getRatingsByPoster(@PathVariable Long posterId) {
+        return ratingRepo.findByPosterId(posterId);
+    }
 }
