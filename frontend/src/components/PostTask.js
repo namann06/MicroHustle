@@ -3,6 +3,7 @@ import React from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -15,6 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { cn } from "../lib/utils";
 
 function PostTask({ currentUser }) {
   const FormSchema = z.object({
@@ -170,134 +172,198 @@ function PostTask({ currentUser }) {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[60vh] bg-gradient-to-br from-blue-50 via-white to-indigo-100">
-      <Form 
-        {...form}
-        onSubmit={(e) => {
-          e.preventDefault();
-          console.log('Form submit event triggered');
-          form.handleSubmit(onSubmit)(e);
-        }} 
-        className="w-full max-w-2xl bg-white shadow-xl rounded-2xl px-16 py-8 space-y-6 border border-gray-200"
-      >
-        <h2 className="text-3xl font-extrabold mb-8 text-center text-indigo-800 tracking-tight">Post a Task</h2>
-        {success && <div className="text-green-600 text-center mb-4 font-medium">Task posted!</div>}
-
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem className="posttask-formitem">
-                <FormLabel className="posttask-label">Title</FormLabel>
-                <FormControl>
-                  <Input className="posttask-input" placeholder="Title" {...field} />
-                </FormControl>
-                <FormMessage className="posttask-formmsg" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem className="posttask-formitem">
-                <FormLabel className="posttask-label">Description</FormLabel>
-                <FormControl>
-                  <Textarea className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition min-h-[100px]" placeholder="Describe your task" {...field} />
-                </FormControl>
-                <FormMessage className="posttask-formmsg" />
-              </FormItem>
-            )}
-          />
-
-          {/* Image Upload Field */}
-          <div className="posttask-formitem">
-            <label className="posttask-label block text-sm font-semibold text-gray-700 mb-2">
-              Task Image (Optional)
-            </label>
-            <div className="space-y-4">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-              />
-              {imagePreview && (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full max-w-xs h-48 object-cover rounded-lg border border-gray-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedImage(null);
-                      setImagePreview(null);
-                    }}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <FormField
-            control={form.control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem className="posttask-formitem">
-                <FormLabel className="posttask-label">Tags</FormLabel>
-                <FormControl>
-                  <Input className="posttask-input" placeholder="Tags (comma separated)" {...field} />
-                </FormControl>
-                <FormMessage className="posttask-formmsg" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="budget"
-            render={({ field }) => (
-              <FormItem className="posttask-formitem">
-                <FormLabel className="posttask-label">Budget (₹)</FormLabel>
-                <FormControl>
-                  <Input className="posttask-input" type="number" placeholder="Budget (₹)" {...field} />
-                </FormControl>
-                <FormMessage className="posttask-formmsg" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="deadline"
-            render={({ field }) => (
-              <FormItem className="posttask-formitem">
-                <FormLabel className="posttask-label">Deadline</FormLabel>
-                <FormControl>
-                  <Input className="posttask-input" type="date" placeholder="Deadline" {...field} />
-                </FormControl>
-                <FormDescription className="text-xs text-gray-400 mb-1">
-                  The deadline for your task.
-                </FormDescription>
-                <FormMessage className="posttask-formmsg" />
-              </FormItem>
-            )}
-          />
-          <Button 
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow" 
-            type="submit"
-            disabled={uploading}
-            onClick={(e) => {
-              console.log('Submit button clicked');
-              // Don't prevent default here, let the form handle it
-            }}
+    <div className="relative w-full">
+      {/* Grid Background */}
+      <div className="relative flex min-h-screen w-full items-center justify-center bg-white dark:bg-black">
+        <div
+          className={cn(
+            "absolute inset-0",
+            "[background-size:40px_40px]",
+            "[background-image:linear-gradient(to_right,#e4e4e7_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
+            "dark:[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]"
+          )} />
+        {/* Radial gradient for the container to give a faded look */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black"></div>
+        
+        {/* Post Task Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="relative z-20 w-full max-w-2xl p-8"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="rounded-3xl border border-neutral-200 bg-neutral-100/80 backdrop-blur-sm p-8 shadow-xl dark:border-neutral-800 dark:bg-neutral-900/80"
           >
-            {uploading ? 'Uploading...' : 'Post Task'}
-          </Button>
-      </Form>
+            <motion.h2 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="text-3xl font-bold text-center text-slate-800 dark:text-slate-200 tracking-tight mb-8"
+            >
+              Post a Task
+            </motion.h2>
+            {success && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-green-600 dark:text-green-400 text-center mb-4 font-medium p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+              >
+                Task posted successfully!
+              </motion.div>
+            )}
+            <Form 
+              {...form}
+              onSubmit={(e) => {
+                e.preventDefault();
+                console.log('Form submit event triggered');
+                form.handleSubmit(onSubmit)(e);
+              }} 
+              className="space-y-6"
+            >
+
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Title</FormLabel>
+                    <FormControl>
+                      <Input 
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" 
+                        placeholder="Enter task title" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldState.error?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all min-h-[100px]" 
+                        placeholder="Describe your task in detail" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldState.error?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              {/* Image Upload Field */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                  Task Image (Optional)
+                </label>
+                <div className="space-y-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all"
+                  />
+                  {imagePreview && (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full max-w-xs h-48 object-cover rounded-lg border border-neutral-300 dark:border-neutral-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedImage(null);
+                          setImagePreview(null);
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-all"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Tags</FormLabel>
+                    <FormControl>
+                      <Input 
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" 
+                        placeholder="Enter tags (comma separated)" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldState.error?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="budget"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Budget (₹)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" 
+                        placeholder="Enter budget amount" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldState.error?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="deadline"
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Deadline</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="date" 
+                        className="w-full px-4 py-3 border border-neutral-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-all" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                      Select the deadline for your task completion.
+                    </FormDescription>
+                    <FormMessage className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldState.error?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+              <Button 
+                className="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" 
+                type="submit"
+                disabled={uploading}
+                onClick={(e) => {
+                  console.log('Submit button clicked');
+                  // Don't prevent default here, let the form handle it
+                }}
+              >
+                {uploading ? 'Posting Task...' : 'Post Task'}
+              </Button>
+            </Form>
+          </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
