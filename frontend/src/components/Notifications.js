@@ -6,38 +6,81 @@ import ChatModal from './ChatModal';
 import StarRating from './StarRating';
 import { cn } from "../lib/utils";
 import { Bell, CheckCircle, MessageCircle, Clock, User } from "lucide-react";
+import { apiFetch, buildUrl } from "../lib/api";
 
 function Notifications({ currentUser }) {
   const [notifications, setNotifications] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatProps, setChatProps] = useState(null);
   const [hustlerRatings, setHustlerRatings] = useState({});
+  const [loadError, setLoadError] = useState(null);
   // Fetch initial unread notifications
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
-    fetch(`http://localhost:8080/api/notifications/poster/${currentUser.id}?unread=true`)
-      .then(res => res.json())
-      .then(setNotifications);
+    let cancelled = false;
+    const fetchNotifications = async () => {
+      try {
+  const res = await apiFetch(`/api/notifications/poster/${currentUser.id}?unread=true`);
+        if (!res.ok) {
+          throw new Error(`Request failed with status ${res.status}`);
+        }
+        const data = await res.json();
+        if (!cancelled) {
+          setNotifications(data);
+          setLoadError(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch notifications", error);
+        if (!cancelled) {
+          setNotifications([]);
+          setLoadError("Couldn't reach the notification service. Please refresh once the server is available.");
+        }
+      }
+    };
+    fetchNotifications();
+    return () => {
+      cancelled = true;
+    };
   }, [currentUser]);
 
   // Fetch hustler ratings for notifications
   useEffect(() => {
+    let cancelled = false;
     const uniqueHustlerIds = Array.from(new Set(notifications.map(n => n.hustlerId).filter(Boolean)));
     uniqueHustlerIds.forEach(hustlerId => {
-      if (hustlerRatings[hustlerId] === undefined) {
-        fetch(`http://localhost:8080/api/ratings/hustler/${hustlerId}/average`)
-          .then(res => res.json())
-          .then(avg => setHustlerRatings(r => ({ ...r, [hustlerId]: avg })));
-      }
+      if (cancelled) return;
+      (async () => {
+        try {
+            const res = await apiFetch(`/api/ratings/hustler/${hustlerId}/average`);
+          if (!res.ok) {
+            throw new Error(`Failed to fetch rating for ${hustlerId}: ${res.status}`);
+          }
+          const avg = await res.json();
+          if (!cancelled) {
+            setHustlerRatings(prev => (
+              prev[hustlerId] !== undefined ? prev : { ...prev, [hustlerId]: avg }
+            ));
+          }
+        } catch (error) {
+          console.error("Failed to fetch hustler rating", error);
+          if (!cancelled) {
+            setHustlerRatings(prev => (
+              prev[hustlerId] !== undefined ? prev : { ...prev, [hustlerId]: null }
+            ));
+          }
+        }
+      })();
     });
-    // eslint-disable-next-line
+    return () => {
+      cancelled = true;
+    };
   }, [notifications]);
 
   // WebSocket for real-time notifications
   const stompClientRef = useRef(null);
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
-    const socket = new SockJS('http://localhost:8080/ws/notifications');
+  const socket = new SockJS(buildUrl(`/ws/notifications`));
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -56,8 +99,15 @@ function Notifications({ currentUser }) {
   }, [currentUser]);
 
   const markAsRead = async (id) => {
-    await fetch(`http://localhost:8080/api/notifications/${id}/read`, { method: 'POST' });
-    setNotifications(notifications.filter(n => n.id !== id));
+    try {
+  const res = await apiFetch(`/api/notifications/${id}/read`, { method: 'POST' });
+      if (!res.ok) {
+        throw new Error(`Failed to mark notification ${id} as read (status ${res.status})`);
+      }
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    } catch (error) {
+      console.error("Failed to mark notification as read", error);
+    }
   };
 
   if (!currentUser || currentUser.role !== 'POSTER') {
@@ -148,7 +198,22 @@ function Notifications({ currentUser }) {
             </motion.div>
 
             {/* Notifications List */}
-            {notifications.length === 0 ? (
+            {loadError ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="rounded-3xl border border-red-200 bg-red-50/90 backdrop-blur-sm p-12 shadow-xl text-center dark:border-red-800/60 dark:bg-red-900/40"
+              >
+                <Bell className="w-20 h-20 mx-auto text-red-300 dark:text-red-600 mb-6" />
+                <h3 className="text-xl font-semibold text-red-800 dark:text-red-200 mb-2">
+                  Unable to load notifications
+                </h3>
+                <p className="text-red-700 dark:text-red-300">
+                  {loadError}
+                </p>
+              </motion.div>
+            ) : notifications.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

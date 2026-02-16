@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChatModal from "./ChatModal";
+import { apiFetch } from "../lib/api";
 
 export default function PosterInbox({ currentUser, onInboxRead }) {
   const [threads, setThreads] = useState([]);
@@ -8,7 +9,7 @@ export default function PosterInbox({ currentUser, onInboxRead }) {
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
-    fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
+    apiFetch(`/api/messages/poster-inbox?userId=${currentUser.id}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setThreads(data);
@@ -17,7 +18,7 @@ export default function PosterInbox({ currentUser, onInboxRead }) {
   }, [currentUser]);
 
   const markThreadRead = (taskId, posterId, hustlerId) => {
-    return fetch(`http://localhost:8080/api/messages/mark-thread-read?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
+    return apiFetch(`/api/messages/mark-thread-read?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
       method: 'POST'
     });
   };
@@ -64,7 +65,7 @@ export default function PosterInbox({ currentUser, onInboxRead }) {
             onClose={() => {
               setChatOpen(false);
               if (currentUser) {
-                fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
+                apiFetch(`/api/messages/poster-inbox?userId=${currentUser.id}`)
                   .then(res => res.json())
                   .then(data => {
                     setThreads(Array.isArray(data) ? data : []);

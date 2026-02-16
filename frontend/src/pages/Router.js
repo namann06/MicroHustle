@@ -16,6 +16,7 @@ import Login from './Login';
 import Register from './Register';
 import { LandingPage } from './LandingPage';
 import BrowseTasksPage from './BrowseTasksPage';
+import { removeAuthToken } from '../lib/api';
 
 function AppContent({ setCurrentUser, currentUser }) {
   // Always call the hook, but it will return 0 for non-POSTER users internally
@@ -26,6 +27,7 @@ function AppContent({ setCurrentUser, currentUser }) {
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
+    removeAuthToken();
   };
 
   const handleInboxRead = () => {

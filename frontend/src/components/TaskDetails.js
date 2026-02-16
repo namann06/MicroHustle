@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ChatModal from './ChatModal';
 import '../styles/task-details.css';
+import { apiFetch, assetUrl } from "../lib/api";
 
 function TaskDetails({ taskId, onBack, currentUser }) {
   const [task, setTask] = useState(null);
@@ -12,7 +13,7 @@ function TaskDetails({ taskId, onBack, currentUser }) {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch(`http://localhost:8080/api/tasks/${taskId}`)
+    apiFetch(`/api/tasks/${taskId}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to load task details');
         return res.json();
@@ -43,7 +44,7 @@ function TaskDetails({ taskId, onBack, currentUser }) {
                 src={task.poster?.profilePicUrl 
                   ? task.poster.profilePicUrl.startsWith('http') 
                     ? task.poster.profilePicUrl 
-                    : `http://localhost:8080${task.poster.profilePicUrl.startsWith('/') ? '' : '/'}${task.poster.profilePicUrl}`
+                    : assetUrl(task.poster.profilePicUrl)
                   : `https://ui-avatars.com/api/?name=${task.poster?.username || 'U'}&background=random`
                 } 
                 alt="avatar" 

@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { cn } from "../lib/utils";
+import { apiFetch } from "../lib/api";
 
 function PostTask({ currentUser }) {
   const FormSchema = z.object({
@@ -72,7 +73,7 @@ function PostTask({ currentUser }) {
     formData.append('file', imageFile);
     
     try {
-      const response = await fetch('http://localhost:8080/api/files/upload', {
+      const response = await apiFetch('/api/files/upload', {
         method: 'POST',
         body: formData
       });
@@ -139,7 +140,7 @@ function PostTask({ currentUser }) {
       
       console.log('Sending task data:', taskData);
       
-      const response = await fetch('http://localhost:8080/api/tasks', {
+      const response = await apiFetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(taskData)

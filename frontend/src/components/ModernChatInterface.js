@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { ChatForm } from "./ui/chat";
 import { MessageInput } from "./ui/message-input";
+import { apiFetch, buildUrl, assetUrl } from "../lib/api";
 
 function isImage(filename) {
   return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(filename);
@@ -43,7 +44,7 @@ export default function ModernChatInterface({
   const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/messages/thread?taskId=${task.id}&userA=${currentUser.id}&userB=${otherUser.id}`)
+    apiFetch(`/api/messages/thread?taskId=${task.id}&userA=${currentUser.id}&userB=${otherUser.id}`)
       .then(res => res.json())
       .then(setMessages);
 
@@ -52,7 +53,7 @@ export default function ModernChatInterface({
     const topic = `/topic/chat/${task.id}-${minId}-${maxId}`;
     console.log('Subscribing to WebSocket topic:', topic);
 
-    const socket = new SockJS('http://localhost:8080/ws');
+    const socket = new SockJS(buildUrl('/ws'));
     const client = new Client({
       webSocketFactory: () => socket,
       onConnect: () => {
@@ -122,7 +123,7 @@ export default function ModernChatInterface({
         fileFormData.append('file', file);
         
         console.log('Uploading file:', file.name);
-        const uploadResponse = await fetch('http://localhost:8080/api/files/upload', {
+        const uploadResponse = await apiFetch('/api/files/upload', {
           method: 'POST',
           body: fileFormData
         });
@@ -146,7 +147,7 @@ export default function ModernChatInterface({
       }
       
       console.log('Sending message:', Object.fromEntries(formData));
-      await fetch('http://localhost:8080/api/messages/send', {
+      await apiFetch('/api/messages/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
@@ -289,14 +290,14 @@ export default function ModernChatInterface({
                           <div className="mt-2">
                             {isImage(msg.attachmentUrl) ? (
                               <img
-                                src={`http://localhost:8080${msg.attachmentUrl}`}
+                                src={assetUrl(msg.attachmentUrl)}
                                 alt="Attachment"
                                 className="max-w-full h-auto rounded-lg cursor-pointer shadow-md"
-                                onClick={() => window.open(`http://localhost:8080${msg.attachmentUrl}`, '_blank')}
+                                onClick={() => window.open(assetUrl(msg.attachmentUrl), '_blank')}
                               />
                             ) : (
                               <a
-                                href={`http://localhost:8080${msg.attachmentUrl}`}
+                                href={assetUrl(msg.attachmentUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`inline-flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${

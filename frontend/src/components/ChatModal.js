@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import '../styles/chat-modal.css';
+import { apiFetch, buildUrl, assetUrl } from "../lib/api";
 
 function isImage(filename) {
   return /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i.test(filename);
@@ -41,7 +42,7 @@ export default function ChatModal({
 
   useEffect(() => {
     if (!open) return;
-    fetch(`http://localhost:8080/api/messages/thread?taskId=${task.id}&userA=${currentUser.id}&userB=${otherUser.id}`)
+    apiFetch(`/api/messages/thread?taskId=${task.id}&userA=${currentUser.id}&userB=${otherUser.id}`)
       .then(res => res.json())
       .then(setMessages);
 
@@ -49,7 +50,7 @@ export default function ChatModal({
     const maxId = Math.max(currentUser.id, otherUser.id);
     const topic = `/topic/chat/${task.id}-${minId}-${maxId}`;
     const typingTopic = `/topic/chat/${task.id}-${minId}-${maxId}/typing`;
-    const socket = new SockJS('http://localhost:8080/ws/notifications');
+    const socket = new SockJS(buildUrl('/ws/notifications'));
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -61,7 +62,7 @@ export default function ChatModal({
         const msg = JSON.parse(message.body);
         setMessages(m => {
           if (msg.recipient.id === currentUser.id && !msg.read) {
-            fetch(`http://localhost:8080/api/messages/${msg.id}/read`, { method: 'POST' });
+            apiFetch(`/api/messages/${msg.id}/read`, { method: 'POST' });
           }
           return [...m, msg];
         });
@@ -96,7 +97,7 @@ export default function ChatModal({
       const formData = new FormData();
       formData.append('file', attachment);
       try {
-        const uploadRes = await fetch('http://localhost:8080/api/files/upload', {
+        const uploadRes = await apiFetch('/api/files/upload', {
           method: 'POST',
           body: formData
         });
@@ -114,7 +115,7 @@ export default function ChatModal({
       }
     }
 
-    const res = await fetch(`http://localhost:8080/api/messages/send?senderId=${currentUser.id}&recipientId=${otherUser.id}&taskId=${task.id}&content=${encodeURIComponent(input)}${attachmentUrl ? `&attachmentUrl=${encodeURIComponent(attachmentUrl)}` : ''}`,
+    const res = await apiFetch(`/api/messages/send?senderId=${currentUser.id}&recipientId=${otherUser.id}&taskId=${task.id}&content=${encodeURIComponent(input)}${attachmentUrl ? `&attachmentUrl=${encodeURIComponent(attachmentUrl)}` : ''}`,
       { method: 'POST' });
     if (res.ok) {
       setInput("");
@@ -147,15 +148,15 @@ export default function ChatModal({
               {renderMessageContent(msg.content)}
               {msg.attachmentUrl && (
                 isImage(msg.attachmentUrl) ? (
-                  <a href={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`} target="_blank" rel="noopener noreferrer" className="block mt-2">
+                  <a href={assetUrl(msg.attachmentUrl)} target="_blank" rel="noopener noreferrer" className="block mt-2">
                     <img
-                      src={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`}
+                      src={assetUrl(msg.attachmentUrl)}
                       alt="attachment"
                       className="max-h-40 rounded-lg border"
                     />
                   </a>
                 ) : (
-                  <a className="block text-sm underline mt-2" href={`http://localhost:8080/${msg.attachmentUrl.replace(/^\/uploads\//, '')}`} target="_blank" rel="noopener noreferrer">
+                  <a className="block text-sm underline mt-2" href={assetUrl(msg.attachmentUrl)} target="_blank" rel="noopener noreferrer">
                     {getFileTypeLabel(msg.attachmentUrl)}
                   </a>
                 )

@@ -13,6 +13,7 @@ import {
   FormControl,
   FormMessage
 } from "../components/ui/form";
+import { apiFetch, setAuthToken } from "../lib/api";
 
 function Login({ setCurrentUser }) {
   const navigate = useNavigate();
@@ -30,15 +31,17 @@ function Login({ setCurrentUser }) {
   async function onSubmit(data) {
     setError(null);
     try {
-      const res = await fetch('http://localhost:8080/api/users/login', {
+      const res = await apiFetch('/api/users/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
       if (!res.ok) throw new Error('Invalid credentials');
-      const user = await res.json();
-      setCurrentUser(user);
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      const result = await res.json();
+      // Store JWT token
+      setAuthToken(result.token);
+      // Store user data
+      setCurrentUser(result.user);
+      localStorage.setItem('currentUser', JSON.stringify(result.user));
       navigate('/');
     } catch (err) {
       setError('Invalid username or password');

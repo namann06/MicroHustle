@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import RatingModal from "./RatingModal";
 import { CardContainer, CardBody, CardItem } from "./ui/aceternity-card";
+import { apiFetch } from "../lib/api";
 
 
 function PosterTasks({ currentUser }) {
@@ -13,7 +14,7 @@ function PosterTasks({ currentUser }) {
 
   useEffect(() => {
     if (!currentUser) return;
-    fetch(`http://localhost:8080/api/tasks/poster/${currentUser.id}`)
+    apiFetch(`/api/tasks/poster/${currentUser.id}`)
       .then((res) => res.json())
       .then(setTasks);
   }, [currentUser]);
@@ -27,11 +28,11 @@ function PosterTasks({ currentUser }) {
   const handleSubmitRating = async (rating, comment) => {
     if (!modalTask || !modalHustler) return;
     // 1. Submit rating
-    await fetch(`http://localhost:8080/api/ratings/give?hustlerId=${modalHustler.id}&posterId=${currentUser.id}&taskId=${modalTask.id}&rating=${rating}&comment=${encodeURIComponent(comment)}`, { method: 'POST' });
+    await apiFetch(`/api/ratings/give?hustlerId=${modalHustler.id}&posterId=${currentUser.id}&taskId=${modalTask.id}&rating=${rating}&comment=${encodeURIComponent(comment)}`, { method: 'POST' });
     // 2. Mark as done
-    await fetch(`http://localhost:8080/api/tasks/${modalTask.id}/complete?hustlerId=${modalHustler.id}`, { method: 'POST' });
+    await apiFetch(`/api/tasks/${modalTask.id}/complete?hustlerId=${modalHustler.id}`, { method: 'POST' });
     // 3. Refresh tasks
-    fetch(`http://localhost:8080/api/tasks/poster/${currentUser.id}`)
+    apiFetch(`/api/tasks/poster/${currentUser.id}`)
       .then((res) => res.json())
       .then(setTasks);
     setModalOpen(false);
@@ -74,8 +75,8 @@ function PosterTasks({ currentUser }) {
                             className="px-8 py-0.5 border-2 border-black dark:border-white uppercase bg-white text-black transition duration-200 text-sm shadow-[1px_1px_rgba(0,0,0),2px_2px_rgba(0,0,0),3px_3px_rgba(0,0,0),4px_4px_rgba(0,0,0),5px_5px_0px_0px_rgba(0,0,0)] dark:shadow-[1px_1px_rgba(255,255,255),2px_2px_rgba(255,255,255),3px_3px_rgba(255,255,255),4px_4px_rgba(255,255,255),5px_5px_0px_0px_rgba(255,255,255)] rounded-md"
                             onClick={async (e) => {
                               e.preventDefault();
-                              await fetch(`http://localhost:8080/api/tasks/${task.id}/archive?posterId=${currentUser.id}`, { method: 'POST' });
-                              fetch(`http://localhost:8080/api/tasks/poster/${currentUser.id}`)
+                              await apiFetch(`/api/tasks/${task.id}/archive?posterId=${currentUser.id}`, { method: 'POST' });
+                              apiFetch(`/api/tasks/poster/${currentUser.id}`)
                                 .then((res) => res.json())
                                 .then(setTasks);
                             }}

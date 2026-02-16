@@ -1,6 +1,7 @@
 import React from 'react';
 import { CardContainer, CardBody, CardItem } from './ui/3d-card';
 import { Button } from './ui/button';
+import { assetUrl } from "../lib/api";
 
 const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => {
   const isHustler = currentUser?.role === 'HUSTLER';
@@ -32,7 +33,7 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
   };
 
   const imageUrl = task.imageUrl 
-    ? (task.imageUrl.startsWith('http') ? task.imageUrl : `http://localhost:8080${task.imageUrl}`)
+    ? (task.imageUrl.startsWith('http') ? task.imageUrl : assetUrl(task.imageUrl))
     : 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80';
   // Ensure profilePicUrl is properly constructed with the base URL if it's a relative path
   const getProfilePicUrl = () => {
@@ -44,7 +45,7 @@ const TaskCard = ({ task, currentUser, onPosterClick, onAccept, accepting }) => 
       return task.poster.profilePicUrl;
     }
     // Otherwise, assume it's a path relative to the API base URL
-    return `http://localhost:8080${task.poster.profilePicUrl.startsWith('/') ? '' : '/'}${task.poster.profilePicUrl}`;
+    return assetUrl(task.poster.profilePicUrl);
   };
   const profilePicUrl = getProfilePicUrl();
   const formattedDate = task.createdAt ? new Date(task.createdAt).toLocaleDateString('en-US', {

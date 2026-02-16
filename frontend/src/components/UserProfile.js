@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
+import { apiFetch, assetUrl } from "../lib/api";
 
 export default function UserProfile({ userId, username, onUsernameClick, currentUser }) {
   const navigate = useNavigate();
@@ -21,11 +22,10 @@ export default function UserProfile({ userId, username, onUsernameClick, current
   useEffect(() => {
     setLoading(true);
     setError(null);
-    const base = "http://localhost:8080";
-    let url = userId
-      ? `${base}/api/users/${userId}/profile`
-      : `${base}/api/users/public/${encodeURIComponent(username)}`;
-    fetch(url)
+    const url = userId
+      ? `/api/users/${userId}/profile`
+      : `/api/users/public/${encodeURIComponent(username)}`;
+    apiFetch(url)
       .then(async res => {
         if (!res.ok) throw new Error('Profile not found');
         return res.json();
@@ -35,16 +35,16 @@ export default function UserProfile({ userId, username, onUsernameClick, current
         setBio(data.bio || "");
         setProfilePicUrl(data.profilePicUrl || "");
         if (data.role === "HUSTLER") {
-          fetch(`${base}/api/users/${data.id}/hustler-completed-tasks`)            .then(res => res.json())
+          apiFetch(`/api/users/${data.id}/hustler-completed-tasks`)            .then(res => res.json())
             .then(setTasks);
-          fetch(`${base}/api/users/${data.id}/hustler-ratings`)            .then(res => res.json())
+          apiFetch(`/api/users/${data.id}/hustler-ratings`)            .then(res => res.json())
             .then(setRatings);
         } else if (data.role === "POSTER") {
-          fetch(`${base}/api/users/${data.id}/poster-tasks`)            .then(res => res.json())
+          apiFetch(`/api/users/${data.id}/poster-tasks`)            .then(res => res.json())
             .then(setTasks);
           
           // Fetch reviews given by this poster
-          fetch(`${base}/api/ratings/poster/${data.id}`)
+          apiFetch(`/api/ratings/poster/${data.id}`)
             .then(res => {
               if (res.ok) {
                 return res.json();
@@ -83,7 +83,7 @@ export default function UserProfile({ userId, username, onUsernameClick, current
       const formData = new FormData();
       formData.append('file', file);
       console.log('[DEBUG] Uploading file:', file.name);
-      const res = await fetch('http://localhost:8080/api/files/upload', {
+      const res = await apiFetch('/api/files/upload', {
         method: 'POST',
         body: formData
       });
@@ -111,7 +111,7 @@ export default function UserProfile({ userId, username, onUsernameClick, current
     setSaving(true);
     setSaveError(null);
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${profile.id}/profile`, {
+      const res = await apiFetch(`/api/users/${profile.id}/profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bio, profilePicUrl })
@@ -140,7 +140,7 @@ export default function UserProfile({ userId, username, onUsernameClick, current
             </div>
             {/* Profile image */}
             <img
-              src={profilePicUrl ? `http://localhost:8080/${profilePicUrl.replace(/^\/uploads\//, '')}` : "https://ui-avatars.com/api/?name=" + profile.username}
+              src={profilePicUrl ? assetUrl(profilePicUrl) : "https://ui-avatars.com/api/?name=" + profile.username}
               alt="Profile"
               className="profile_image w-40 h-40 rounded-full object-cover border-[3px] border-black mt-8 shadow-md bg-white"
             />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ChatModal from "./ChatModal";
+import { apiFetch } from "../lib/api";
 
 export default function HustlerInbox({ currentUser, onInboxRead }) {
   const [threads, setThreads] = useState([]);
@@ -9,7 +10,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'HUSTLER') return;
-    fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`)
+    apiFetch(`/api/messages/inbox?userId=${currentUser.id}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) setThreads(data);
@@ -18,7 +19,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
   }, [currentUser]);
 
   const markThreadReadHustler = (taskId, posterId, hustlerId) => {
-    return fetch(`http://localhost:8080/api/messages/mark-thread-read-hustler?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
+    return apiFetch(`/api/messages/mark-thread-read-hustler?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
       method: 'POST'
     });
   };
@@ -36,7 +37,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
     formData.append("hustlerId", currentUser.id);
 
     try {
-      const response = await fetch(`http://localhost:8080/api/messages/upload-file`, {
+      const response = await apiFetch(`/api/messages/upload-file`, {
         method: "POST",
         body: formData
       });
@@ -49,7 +50,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
       console.log("File uploaded successfully.");
 
       // Refresh threads after upload
-      const inboxResponse = await fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`);
+      const inboxResponse = await apiFetch(`/api/messages/inbox?userId=${currentUser.id}`);
       const data = await inboxResponse.json();
       setThreads(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -115,7 +116,7 @@ export default function HustlerInbox({ currentUser, onInboxRead }) {
                   chatProps.otherUser.id,
                   currentUser.id
                 );
-                fetch(`http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`)
+                apiFetch(`/api/messages/inbox?userId=${currentUser.id}`)
                   .then(res => res.json())
                   .then(data => {
                     setThreads(Array.isArray(data) ? data : []);

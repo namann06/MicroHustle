@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../lib/api';
 
 /**
  * Custom hook to fetch and keep in sync the unread inbox message count for the current user.
@@ -16,17 +17,17 @@ export default function useUnreadInboxCount(currentUser, refreshTrigger = 0) {
       setUnreadCount(0);
       return;
     }
-    let url = '';
+    let path = '';
     if (currentUser.role === 'POSTER') {
-      url = `http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`;
+      path = `/api/messages/poster-inbox?userId=${currentUser.id}`;
     } else if (currentUser.role === 'HUSTLER') {
-      url = `http://localhost:8080/api/messages/inbox?userId=${currentUser.id}`;
+      path = `/api/messages/inbox?userId=${currentUser.id}`;
     }
-    if (!url) return;
+    if (!path) return;
 
     let stopped = false;
     const fetchUnread = () => {
-      fetch(url)
+      apiFetch(path)
         .then(res => res.json())
         .then(data => {
           if (stopped) return;

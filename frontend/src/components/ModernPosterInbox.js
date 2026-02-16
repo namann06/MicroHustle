@@ -6,6 +6,7 @@ import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import ModernChatInterface from "./ModernChatInterface";
 import '../styles/modern-inbox.css';
+import { apiFetch } from "../lib/api";
 
 export default function ModernPosterInbox({ currentUser, onInboxRead }) {
   const [threads, setThreads] = useState([]);
@@ -16,7 +17,7 @@ export default function ModernPosterInbox({ currentUser, onInboxRead }) {
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
     
-    fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
+    apiFetch(`/api/messages/poster-inbox?userId=${currentUser.id}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -42,7 +43,7 @@ export default function ModernPosterInbox({ currentUser, onInboxRead }) {
   }, [searchQuery, threads]);
 
   const markThreadRead = (taskId, posterId, hustlerId) => {
-    return fetch(`http://localhost:8080/api/messages/mark-thread-read?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
+    return apiFetch(`/api/messages/mark-thread-read?taskId=${taskId}&posterId=${posterId}&hustlerId=${hustlerId}`, {
       method: 'POST'
     });
   };
@@ -67,7 +68,7 @@ export default function ModernPosterInbox({ currentUser, onInboxRead }) {
     setSelectedThread(null);
     // Refresh inbox
     if (currentUser) {
-      fetch(`http://localhost:8080/api/messages/poster-inbox?userId=${currentUser.id}`)
+      apiFetch(`/api/messages/poster-inbox?userId=${currentUser.id}`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {

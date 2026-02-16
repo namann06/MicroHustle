@@ -15,6 +15,7 @@ import {
   FormMessage
 } from "../components/ui/form";
 import { cn } from "../lib/utils";
+import { apiFetch, setAuthToken } from "../lib/api";
 
 function Register({ setCurrentUser }) {
   const navigate = useNavigate();
@@ -35,29 +36,25 @@ function Register({ setCurrentUser }) {
     setSuccess(false);
     setError(null);
     try {
-      console.log('Submitting registration data:', data);
-      const res = await fetch('http://localhost:8080/api/users/register', {
+      const res = await apiFetch('/api/users/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      console.log('Response status:', res.status);
-      console.log('Response ok:', res.ok);
       
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Registration failed with status:', res.status, 'Error:', errorText);
-        throw new Error(`Registration failed: ${errorText}`);
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Registration failed');
       }
       
-      const user = await res.json();
-      console.log('Registration successful, user:', user);
-      setCurrentUser(user);
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      const result = await res.json();
+      // Store JWT token
+      setAuthToken(result.token);
+      // Store user data
+      setCurrentUser(result.user);
+      localStorage.setItem('currentUser', JSON.stringify(result.user));
       setSuccess(true);
       form.reset();
     } catch (err) {
-      console.error('Registration error:', err);
       setError(err.message || 'Registration failed');
     }
   }

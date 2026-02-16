@@ -1,23 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { CardContainer, CardBody, CardItem } from "./ui/aceternity-card";
+import { apiFetch } from "../lib/api";
 
 function HustlerTasks({ currentUser }) {
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     if (!currentUser) return;
-    fetch(`http://localhost:8080/api/tasks/hustler/${currentUser.id}`)
+    apiFetch(`/api/tasks/hustler/${currentUser.id}`)
       .then((res) => res.json())
       .then(setTasks);
   }, [currentUser]);
 
   const markTaskAsCompleted = async (taskId) => {
     try {
-      await fetch(`http://localhost:8080/api/tasks/${taskId}/complete?hustlerId=${currentUser.id}`, { 
+      await apiFetch(`/api/tasks/${taskId}/complete?hustlerId=${currentUser.id}`, { 
         method: 'POST' 
       });
       // Refresh tasks after marking as completed
-      fetch(`http://localhost:8080/api/tasks/hustler/${currentUser.id}`)
+      apiFetch(`/api/tasks/hustler/${currentUser.id}`)
         .then((res) => res.json())
         .then(setTasks);
     } catch (error) {
