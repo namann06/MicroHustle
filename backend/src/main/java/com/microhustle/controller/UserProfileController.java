@@ -39,7 +39,7 @@ public class UserProfileController {
     // Public profile by username
     @GetMapping("/public/{username}")
     public ResponseEntity<?> getPublicProfile(@PathVariable String username) {
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findFirstByUsername(username);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Collections.singletonMap("error", "User not found"));
