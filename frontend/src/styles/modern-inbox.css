@@ -106,15 +106,15 @@
 
 /* Glassmorphism effect for header */
 .glass-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Custom scrollbar for messages */
 .messages-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+  scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
 }
 
 .messages-scroll::-webkit-scrollbar {
@@ -126,12 +126,12 @@
 }
 
 .messages-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(59, 130, 246, 0.3);
+  background-color: rgba(107, 114, 128, 0.3);
   border-radius: 3px;
 }
 
 .messages-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(59, 130, 246, 0.5);
+  background-color: rgba(107, 114, 128, 0.5);
 }
 
 /* Responsive adjustments */
