@@ -36,6 +36,14 @@ A full-stack micro-task marketplace where **Posters** publish small jobs and **H
 
 ---
 
+## 📸 Screenshots
+
+
+
+---
+
+<img width="1887" height="901" alt="Screenshot 2026-02-27 183625" src="https://github.com/user-attachments/assets/2ce8716f-826a-40f0-b814-15fe8b5c7f99" />
+
 ## Tech Stack
 
 ### Frontend
