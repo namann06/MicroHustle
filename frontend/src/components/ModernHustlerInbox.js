@@ -123,7 +123,7 @@ export default function ModernHustlerInbox({ currentUser, onInboxRead }) {
   }
 
   return (
-    <div className="flex h-screen bg-black modern-inbox">
+    <div className="flex h-[calc(100vh-4rem)] bg-black modern-inbox">
       {/* Sidebar - Chat List */}
       <div className="w-80 bg-gray-950/80 backdrop-blur-sm border-r border-gray-800 flex flex-col chat-sidebar">
         {/* Header */}

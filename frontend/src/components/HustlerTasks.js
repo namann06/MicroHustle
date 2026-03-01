@@ -29,7 +29,7 @@ function HustlerTasks({ currentUser }) {
   if (!currentUser) return <div>Login required</div>;
   return (
     <div className="w-full max-w-6xl mx-auto mt-8">
-      <h2 className="text-3xl font-black mb-4 mt-2 text-[#101828]">Tasks You've Accepted</h2>
+      <h2 className="text-4xl font-extrabold mb-10 text-center text-white tracking-tight">Tasks You've Accepted</h2>
       {tasks.length === 0 ? (
         <div className="text-gray-400">No tasks accepted yet.</div>
       ) : (

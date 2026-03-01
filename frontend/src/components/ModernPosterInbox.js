@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Search, MessageCircle, Clock, Users, Briefcase } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -13,6 +14,7 @@ export default function ModernPosterInbox({ currentUser, onInboxRead }) {
   const [filteredThreads, setFilteredThreads] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedThread, setSelectedThread] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'POSTER') return;
@@ -23,6 +25,24 @@ export default function ModernPosterInbox({ currentUser, onInboxRead }) {
         if (Array.isArray(data)) {
           setThreads(data);
           setFilteredThreads(data);
+          // Auto-select thread if navigated from Notifications
+          if (location.state?.taskId && location.state?.hustlerId) {
+            const match = data.find(
+              t => t.taskId === location.state.taskId && t.hustlerId === location.state.hustlerId
+            );
+            if (match) {
+              setSelectedThread(match);
+            } else {
+              // Thread not in list yet — construct a minimal thread from state
+              setSelectedThread({
+                taskId: location.state.taskId,
+                hustlerId: location.state.hustlerId,
+                hustlerUsername: location.state.hustlerUsername,
+                taskTitle: location.state.taskTitle,
+                unreadCount: 0
+              });
+            }
+          }
         } else {
           setThreads([]);
           setFilteredThreads([]);
@@ -123,7 +143,7 @@ export default function ModernPosterInbox({ currentUser, onInboxRead }) {
   }
 
   return (
-    <div className="flex h-screen bg-black modern-inbox">
+    <div className="flex h-[calc(100vh-4rem)] bg-black modern-inbox">
       {/* Sidebar - Chat List */}
       <div className="w-80 bg-gray-950/80 backdrop-blur-sm border-r border-gray-800 flex flex-col chat-sidebar">
         {/* Header */}
