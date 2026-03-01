@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { motion } from "framer-motion";
-import ChatModal from './ChatModal';
+import { useNavigate } from 'react-router-dom';
 import StarRating from './StarRating';
 import { cn } from "../lib/utils";
 import { Bell, CheckCircle, MessageCircle, Clock, User } from "lucide-react";
@@ -10,9 +10,8 @@ import { apiFetch, buildUrl } from "../lib/api";
 
 function Notifications({ currentUser }) {
   const [notifications, setNotifications] = useState([]);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatProps, setChatProps] = useState(null);
   const [hustlerRatings, setHustlerRatings] = useState({});
+  const navigate = useNavigate();
   const [loadError, setLoadError] = useState(null);
   // Fetch initial unread notifications
   useEffect(() => {
@@ -149,12 +148,14 @@ function Notifications({ currentUser }) {
 
 
   const openChat = (notif) => {
-    setChatProps({
-      currentUser,
-      otherUser: { id: notif.hustlerId, username: notif.hustlerUsername },
-      task: { id: notif.taskId, title: notif.taskTitle }
+    navigate('/posterInbox', {
+      state: {
+        taskId: notif.taskId,
+        hustlerId: notif.hustlerId,
+        hustlerUsername: notif.hustlerUsername,
+        taskTitle: notif.taskTitle
+      }
     });
-    setChatOpen(true);
   };
 
   return (
@@ -299,14 +300,6 @@ function Notifications({ currentUser }) {
         </div>
       </div>
 
-      {/* Chat Modal */}
-      {chatOpen && chatProps && (
-        <ChatModal
-          open={chatOpen}
-          onClose={() => setChatOpen(false)}
-          {...chatProps}
-        />
-      )}
     </div>
   );
 }
