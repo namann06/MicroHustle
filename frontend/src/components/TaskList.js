@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TaskCard from './TaskCard';
-import { apiFetch } from "../lib/api";
 
 function TaskList({ currentUser, search }) {
   const navigate = useNavigate();
@@ -13,7 +12,7 @@ function TaskList({ currentUser, search }) {
   const fetchTasks = () => {
     setLoading(true);
     setError(null);
-    apiFetch('/api/tasks')
+    fetch('http://localhost:8080/api/tasks')
       .then(res => {
         if (!res.ok) throw new Error('Failed to load tasks');
         return res.json();
@@ -32,7 +31,7 @@ function TaskList({ currentUser, search }) {
     setAccepting(taskId);
     setError(null);
     try {
-      const res = await apiFetch(`/api/tasks/${taskId}/accept?hustlerId=${currentUser.id}`, { method: 'POST' });
+      const res = await fetch(`http://localhost:8080/api/tasks/${taskId}/accept?hustlerId=${currentUser.id}`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to accept task');
       fetchTasks();
     } catch (err) {
@@ -54,7 +53,7 @@ function TaskList({ currentUser, search }) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <h2 className="text-3xl font-bold mb-10 text-gray-800">All Projects</h2>
+      <h2 className="text-4xl font-extrabold mb-10 text-center text-white tracking-tight">All Projects</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {tasks
           .filter(task => task.status !== 'ARCHIVED') // Hide archived tasks

@@ -182,7 +182,7 @@ const NavbarButton = ({
 
   const variantStyles = {
     primary:
-      "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-indigo-500/25 hover:shadow-indigo-500/40",
+      "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600 shadow-blue-500/25 hover:shadow-blue-500/40",
     secondary: "bg-white/90 text-gray-800 hover:bg-white hover:text-gray-900 shadow-black/10 border border-gray-200",
     dark: "bg-gray-900 text-white hover:bg-black shadow-black/30 border border-gray-700",
   };
@@ -230,7 +230,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
             onClick={() => navigate('/')} 
             className="relative z-20 flex items-center space-x-2 px-3 py-2 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer hover:scale-105 transition-transform duration-200"
           >
-            <span className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">MicroHustle</span>
+            <span className="text-2xl font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm">MicroHustle</span>
           </button>
           
           <NavItems 
@@ -291,7 +291,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
               onClick={() => navigate('/')} 
               className="relative z-20 flex items-center space-x-2 px-3 py-2 text-sm font-normal text-black dark:text-white border-none bg-transparent cursor-pointer hover:scale-105 transition-transform duration-200"
             >
-              <span className="text-xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">MicroHustle</span>
+              <span className="text-xl font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent drop-shadow-sm">MicroHustle</span>
             </button>
             <button 
               className="p-2 text-gray-800 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
@@ -374,7 +374,7 @@ export default function Layout({ children, currentUser, onLogout, unreadNotifica
         </MobileNav>
       </Navbar>
 
-      <main className="min-h-[calc(100vh-4rem)]">
+      <main className="min-h-[calc(100vh-4rem)] pt-16">
         {children}
       </main>
     </div>
