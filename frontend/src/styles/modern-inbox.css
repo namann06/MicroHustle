@@ -1,6 +1,6 @@
 /* Modern Inbox Styles */
 .modern-inbox {
-  height: 100vh;
+  height: calc(100vh - 4rem);
   overflow: hidden;
 }
 
