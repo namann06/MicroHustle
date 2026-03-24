@@ -11,6 +11,8 @@ services:
     dockerContext: ./backend
     plan: free
     envVars:
+      - key: JDBC_DATABASE_URL
+        sync: false
       - key: DB_HOST
         value: db.setvqbbsiruhlfbujlcc.supabase.co
       - key: DB_PORT
