@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TaskCard from './TaskCard';
+import { buildApiUrl } from '../lib/apiConfig';
 
 function TaskList({ currentUser, search }) {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ function TaskList({ currentUser, search }) {
   const fetchTasks = () => {
     setLoading(true);
     setError(null);
-    fetch('http://localhost:8080/api/tasks')
+    fetch(buildApiUrl('/api/tasks'))
       .then(res => {
         if (!res.ok) throw new Error('Failed to load tasks');
         return res.json();
@@ -31,7 +32,7 @@ function TaskList({ currentUser, search }) {
     setAccepting(taskId);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8080/api/tasks/${taskId}/accept?hustlerId=${currentUser.id}`, { method: 'POST' });
+      const res = await fetch(buildApiUrl(`/api/tasks/${taskId}/accept?hustlerId=${currentUser.id}`), { method: 'POST' });
       if (!res.ok) throw new Error('Failed to accept task');
       fetchTasks();
     } catch (err) {

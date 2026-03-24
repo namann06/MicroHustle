@@ -1,4 +1,10 @@
-export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+const isBrowser = typeof window !== "undefined";
+const isHostedOnRender = isBrowser && window.location.hostname.endsWith("onrender.com");
+
+export const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL ||
+  process.env.REACT_APP_API_URL ||
+  (isHostedOnRender ? "https://microhustle-api.onrender.com" : "http://localhost:8080");
 
 export function buildApiUrl(path = "") {
   if (!path) {
